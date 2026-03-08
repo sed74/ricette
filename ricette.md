@@ -2634,3 +2634,44 @@ RIEPILOGO:
 - Ricette incerte: 7
 - Immagini senza ricetta: 21
 -->
+
+## Ingredienti
+
+- rucola fresca
+- pinoli
+- aglio
+- olio evo
+- sale
+
+## Preparazione
+
+Frullare tutti gli ingredienti. Cuocere la pasta al dente e condire con il pesto.
+
+## Note
+
+ricetta di test
+
+---
+
+## Ingredienti
+
+- 100g rucola
+- 30g pinoli
+- 1 spicchio aglio
+- 80ml olio evo
+
+## Preparazione
+
+Lavare la rucola.
+
+Frullare con pinoli e aglio.
+
+Aggiungere olio e sale.
+
+## Note
+
+Ottimo con la pasta.
+
+Si conserva 3 giorni in frigo.
+
+---
