@@ -65,6 +65,60 @@ def ask_list(prompt):
         items.append(line)
     return items
 
+def ask_sources():
+    """Chiede le immagini da associare alla ricetta."""
+    img_exts = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+    all_imgs = sorted(
+        [f for f in os.listdir(BASE_DIR)
+         if os.path.splitext(f)[1].lower() in img_exts],
+        key=lambda f: os.path.getmtime(os.path.join(BASE_DIR, f)),
+        reverse=True
+    )
+
+    print(f"\n{B}Immagini da associare alla ricetta{RST}")
+    print(f"{Y}  (numero dalla lista o nome file, una per riga; riga vuota per finire){RST}")
+
+    if all_imgs:
+        n_show = min(15, len(all_imgs))
+        print(f"{Y}  Immagini disponibili (più recenti):{RST}")
+        for i, img in enumerate(all_imgs[:n_show], 1):
+            print(f"    {i:2}. {img}")
+        if len(all_imgs) > n_show:
+            print(f"       ... e altre {len(all_imgs) - n_show}")
+    else:
+        print(f"{Y}  Nessuna immagine trovata nella cartella.{RST}")
+
+    sources = []
+    while True:
+        try:
+            line = input("  📷 ").strip()
+        except EOFError:
+            break
+        if not line:
+            break
+        if line.isdigit():
+            idx = int(line) - 1
+            if 0 <= idx < len(all_imgs):
+                fname = all_imgs[idx]
+                if fname not in sources:
+                    sources.append(fname)
+                    ok(f"Aggiunta: {fname}")
+                else:
+                    warn(f"Già presente: {fname}")
+            else:
+                warn(f"Numero non valido (1-{len(all_imgs)}).")
+        else:
+            if os.path.exists(os.path.join(BASE_DIR, line)):
+                if line not in sources:
+                    sources.append(line)
+                    ok(f"Aggiunta: {line}")
+                else:
+                    warn(f"Già presente: {line}")
+            else:
+                warn(f"File non trovato nella cartella: {line}")
+
+    return sources
+
 def categorize(name, ingredients, preparation):
     """Assegna categoria in base a parole chiave."""
     text = (name + " " + " ".join(ingredients) + " " + preparation).lower()
@@ -141,11 +195,12 @@ def update_html(recipes):
 
 # ── aggiunta al file Markdown ──────────────────────────────────────────────────
 def append_to_md(recipe):
+    sources_yaml = json.dumps(recipe.get("sources", []), ensure_ascii=False)
     block = f"""
 ---
 name: {recipe['name']}
 uncertain: false
-sources: []
+sources: {sources_yaml}
 """
     if recipe.get("servings"):   block += f"servings: {recipe['servings']}\n"
     if recipe.get("prep_time"):  block += f"prep_time: {recipe['prep_time']}\n"
@@ -193,6 +248,7 @@ def main():
     cook_time   = ask("Tempo cottura (es. 30 minuti)")
     temperature = ask("Temperatura forno (es. 180°C)")
     notes       = ask("Note aggiuntive")
+    sources     = ask_sources()
 
     # ── costruzione oggetto ───────────────────────────────────────────────────
     category = categorize(name, ingredients, preparation)
@@ -202,6 +258,7 @@ def main():
         "category":    category,
         "uncertain":   False,
         "uncertainty_reason": "",
+        "sources":     sources,
         "servings":    servings,
         "prep_time":   prep_time,
         "cook_time":   cook_time,
@@ -220,6 +277,8 @@ def main():
     if prep_time:   print(f"  Prep:       {prep_time}")
     if cook_time:   print(f"  Cottura:    {cook_time}")
     if temperature: print(f"  Temp:       {temperature}")
+    if sources:     print(f"  Immagini:   {len(sources)} ({', '.join(sources)})")
+    else:           print(f"  Immagini:   nessuna")
     print()
 
     confirm = ask("Salvare la ricetta? (s/n)", default="s").lower()

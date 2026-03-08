@@ -409,6 +409,108 @@ body {
 }
 
 .highlight { background: #FFEB3B; border-radius: 2px; padding: 0 1px; }
+
+/* IMAGE STRIP */
+.img-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.img-thumb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--green-light);
+  background: var(--cream);
+  color: var(--green-dark);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+.img-thumb-btn:hover { background: var(--green-pale); }
+
+/* LIGHTBOX */
+#lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0,0,0,0.92);
+  align-items: center;
+  justify-content: center;
+}
+#lightbox.open { display: flex; }
+
+#lightbox-img {
+  max-width: 95vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#lightbox-counter {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.45);
+  padding: 4px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+#lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #fff;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+#lightbox-close:hover { background: rgba(255,255,255,0.3); }
+
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+.lb-nav:hover { background: rgba(255,255,255,0.28); }
+.lb-nav:disabled { opacity: 0.25; cursor: default; }
+#lb-prev { left: 12px; }
+#lb-next { right: 12px; }
 </style>
 </head>
 <body>
@@ -436,6 +538,14 @@ body {
 
 <div id="grid"></div>
 <div id="empty"><div id="empty-icon">🔍</div><span>Nessuna ricetta trovata</span></div>
+
+<div id="lightbox">
+  <button id="lightbox-close" aria-label="Chiudi">✕</button>
+  <div id="lightbox-counter"></div>
+  <img id="lightbox-img" src="" alt="Immagine ricetta">
+  <button class="lb-nav" id="lb-prev" aria-label="Precedente">&#8249;</button>
+  <button class="lb-nav" id="lb-next" aria-label="Successiva">&#8250;</button>
+</div>
 
 <div id="overlay"></div>
 <div id="modal">
@@ -2824,7 +2934,15 @@ function openRecipe(id) {
 
   const ingsList = r.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('');
 
+  window._lbSources = r.sources && r.sources.length ? r.sources : [];
+  const imgStrip = window._lbSources.length > 0
+    ? `<div class="img-strip">${window._lbSources.map((src, i) =>
+        `<button class="img-thumb-btn" onclick="openLightbox(${i})">📷 ${window._lbSources.length > 1 ? `Foto ${i + 1}` : 'Vedi foto'}</button>`
+      ).join('')}</div>`
+    : '';
+
   modalBody.innerHTML = `
+    ${imgStrip}
     ${r.uncertain ? `<div class="uncertain-banner">⚠️ Ricetta potenzialmente incompleta: ${escapeHtml(r.uncertainty_reason || 'testo non completamente leggibile')}</div>` : ''}
     ${metaItems ? `<div class="modal-meta">${metaItems}</div>` : ''}
     ${ingsList ? `<p class="modal-section-title">Ingredienti</p><ul class="ingredients-list">${ingsList}</ul>` : ''}
@@ -2845,7 +2963,57 @@ function closeModal() {
 
 overlay.addEventListener('click', closeModal);
 document.getElementById('modal-close').addEventListener('click', closeModal);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Lightbox
+let lbIndex = 0;
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightbox-img');
+const lbCounter = document.getElementById('lightbox-counter');
+const lbPrev = document.getElementById('lb-prev');
+const lbNext = document.getElementById('lb-next');
+
+function openLightbox(index) {
+  const srcs = window._lbSources || [];
+  if (!srcs.length) return;
+  lbIndex = index;
+  updateLightbox();
+  lightbox.classList.add('open');
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+}
+
+function updateLightbox() {
+  const srcs = window._lbSources || [];
+  lbImg.src = srcs[lbIndex];
+  if (srcs.length > 1) {
+    lbCounter.textContent = `${lbIndex + 1} / ${srcs.length}`;
+    lbCounter.style.display = '';
+    lbPrev.style.display = '';
+    lbNext.style.display = '';
+    lbPrev.disabled = lbIndex === 0;
+    lbNext.disabled = lbIndex === srcs.length - 1;
+  } else {
+    lbCounter.style.display = 'none';
+    lbPrev.style.display = 'none';
+    lbNext.style.display = 'none';
+  }
+}
+
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+lbPrev.addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; updateLightbox(); } });
+lbNext.addEventListener('click', () => { const n = (window._lbSources||[]).length; if (lbIndex < n - 1) { lbIndex++; updateLightbox(); } });
+
+document.addEventListener('keydown', e => {
+  if (lightbox.classList.contains('open')) {
+    if (e.key === 'Escape') { closeLightbox(); return; }
+    if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; updateLightbox(); return; }
+    if (e.key === 'ArrowRight') { const n = (window._lbSources||[]).length; if (lbIndex < n - 1) { lbIndex++; updateLightbox(); } return; }
+  }
+  if (e.key === 'Escape') closeModal();
+});
 
 // Touch swipe down to close
 let touchStartY = 0;
