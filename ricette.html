@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🌿 Ricette Vegetariane</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-dark: #2D5016;
+  --green-mid: #4A7C2F;
+  --green-light: #7AB648;
+  --green-pale: #D4EDBA;
+  --cream: #FAFAF5;
+  --cream-dark: #F0EFE6;
+  --text: #1A1A1A;
+  --text-muted: #666;
+  --white: #FFFFFF;
+  --shadow: 0 2px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.18);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.2s ease;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 32px;
+}
+
+/* HEADER */
+#header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--green-dark);
+  color: var(--white);
+  padding: 12px 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+#count-badge {
+  font-size: 0.75rem;
+  background: var(--green-light);
+  color: var(--white);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#search-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+#search {
+  width: 100%;
+  padding: 10px 40px 10px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: rgba(255,255,255,0.15);
+  color: var(--white);
+  outline: none;
+  transition: background var(--transition);
+}
+
+#search::placeholder { color: rgba(255,255,255,0.6); }
+#search:focus { background: rgba(255,255,255,0.22); }
+
+#clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: none;
+  padding: 4px;
+  line-height: 1;
+}
+#clear-btn.visible { display: block; }
+
+/* FILTERS */
+#filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#filters::-webkit-scrollbar { display: none; }
+
+.filter-btn {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  background: transparent;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.filter-btn:hover { background: rgba(255,255,255,0.15); }
+.filter-btn.active {
+  background: var(--white);
+  color: var(--green-dark);
+  border-color: var(--white);
+  font-weight: 700;
+}
+
+/* GRID */
+#grid {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 500px) { #grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { #grid { grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 20px; } }
+
+/* EMPTY STATE */
+#empty {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-size: 1rem;
+  gap: 8px;
+}
+#empty.visible { display: flex; }
+#empty-icon { font-size: 3rem; }
+
+/* CARD */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.card:active { transform: scale(0.98); }
+
+.card-body { padding: 14px 14px 10px; flex: 1; }
+
+.card-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.cat-pill {
+  font-size: 0.70rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+}
+
+.badge-uncertain {
+  font-size: 0.70rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #FFF3CD;
+  color: #856404;
+  font-weight: 600;
+}
+
+.card-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.card-info span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.card-ingredients {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-top: 1px solid var(--cream-dark);
+  padding-top: 8px;
+  margin-top: auto;
+}
+
+/* Categorie colori */
+.cat-primi { background: #E3F2FD; color: #1565C0; }
+.cat-secondi { background: #FCE4EC; color: #880E4F; }
+.cat-contorni { background: #E8F5E9; color: #2E7D32; }
+.cat-dolci { background: #FFF8E1; color: #F57F17; }
+.cat-pane { background: #FBE9E7; color: #BF360C; }
+.cat-salse { background: #EDE7F6; color: #4527A0; }
+.cat-colazione { background: #E0F7FA; color: #006064; }
+
+/* MODAL */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#overlay.open { display: block; opacity: 1; }
+
+#modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 201;
+  background: var(--white);
+  border-radius: 20px 20px 0 0;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease;
+  -webkit-overflow-scrolling: touch;
+}
+#modal.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+@media (min-width: 700px) {
+  #modal {
+    left: 50%;
+    right: auto;
+    bottom: 50%;
+    transform: translate(-50%, 50%) scale(0.95);
+    width: 100%;
+    max-width: 620px;
+    border-radius: 20px;
+    max-height: 85vh;
+  }
+  #modal.open { transform: translate(-50%, 50%) scale(1); opacity: 1; pointer-events: auto; }
+}
+
+#modal-handle {
+  width: 36px; height: 4px;
+  background: var(--cream-dark);
+  border-radius: 2px;
+  margin: 10px auto 0;
+}
+
+#modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--cream-dark);
+  gap: 12px;
+}
+
+#modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.3;
+  flex: 1;
+  color: var(--text);
+}
+
+#modal-close {
+  background: var(--cream-dark);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text);
+  transition: background var(--transition);
+}
+#modal-close:hover { background: #e0e0d5; }
+
+#modal-body { padding: 16px 18px 32px; }
+
+.modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--cream);
+  padding: 5px 11px;
+  border-radius: 20px;
+}
+
+.uncertain-banner {
+  background: #FFF3CD;
+  border: 1px solid #FFD700;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  color: #856404;
+}
+
+.modal-section-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--green-dark);
+  margin-bottom: 10px;
+}
+
+.ingredients-list {
+  list-style: none;
+  margin-bottom: 20px;
+}
+.ingredients-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--cream-dark);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.ingredients-list li::before {
+  content: "▸";
+  color: var(--green-light);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ingredients-list li:last-child { border-bottom: none; }
+
+.preparation-text {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+
+.notes-box {
+  background: var(--cream);
+  border-left: 3px solid var(--green-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.highlight { background: #FFEB3B; border-radius: 2px; padding: 0 1px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-top">
+    <h1>🌿 Ricette Vegetariane</h1>
+    <span id="count-badge">92 ricette</span>
+  </div>
+  <div id="search-wrap">
+    <input type="search" id="search" placeholder="Cerca ricetta o ingrediente..." autocomplete="off" />
+    <button id="clear-btn" aria-label="Pulisci ricerca">✕</button>
+  </div>
+  <div id="filters">
+    <button class="filter-btn active" data-cat="Tutte">Tutte</button>
+    <button class="filter-btn" data-cat="Primi">🍝 Primi</button>
+    <button class="filter-btn" data-cat="Secondi">🥗 Secondi</button>
+    <button class="filter-btn" data-cat="Contorni">🥦 Contorni</button>
+    <button class="filter-btn" data-cat="Dolci">🍰 Dolci</button>
+    <button class="filter-btn" data-cat="Pane & Pizza">🍕 Pane & Pizza</button>
+    <button class="filter-btn" data-cat="Salse & Condimenti">🫙 Salse</button>
+    <button class="filter-btn" data-cat="Colazione">☕ Colazione</button>
+  </div>
+</div>
+
+<div id="grid"></div>
+<div id="empty"><div id="empty-icon">🔍</div><span>Nessuna ricetta trovata</span></div>
+
+<div id="overlay"></div>
+<div id="modal">
+  <div id="modal-handle"></div>
+  <div id="modal-header">
+    <div id="modal-title"></div>
+    <button id="modal-close">✕</button>
+  </div>
+  <div id="modal-body"></div>
+</div>
+
+<script>
+const recipes = [
+  {
+    "id": 0,
+    "name": "Torta Bormiense (Torta senza glutine)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "IMG-20230129-WA0012.jpg"
+    ],
+    "servings": "una tortiera da 26cm",
+    "prep_time": "45 minuti",
+    "cook_time": "45 minuti",
+    "temperature": "180°C",
+    "ingredients": [
+      "400g farina 0 (o preparato per dolci senza glutine)",
+      "130g latte di soia (o altro latte vegetale)",
+      "150g zucchero di canna",
+      "90g olio di semi di girasole",
+      "10g lievito vanigliato per dolci",
+      "un bel pizzico di sale",
+      "mezzo barattolo circa di marmellata ai mirtilli"
+    ],
+    "preparation": "La torta va cotta in forno statico a 180 gradi per 45 minuti, o fino a doratura. Si sperava tanto che vi piaccia! Noi siamo impazziti e siamo felicissimi di poter finalmente riprodurre questo dolce in versione vegetale!",
+    "notes": "Ricetta vegetale da Carlotta\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 1,
+    "name": "Polpette di Tempeh",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-03-10-22-13-25-40_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "30 minuti",
+    "cook_time": "non specificato",
+    "temperature": "",
+    "ingredients": [
+      "250 gr di tempeh al naturale",
+      "1 cucchiaio di concentrato di pomodoro",
+      "1 scalogno",
+      "2 spicchi d'aglio",
+      "2 cucchiai di olio",
+      "15 ml di soia",
+      "40 ml di acqua",
+      "40 gr di farina 0",
+      "2 cucchiai di prezzemolo fresco",
+      "1 cucchiaino di paprika affumicata",
+      "1 cucchiaino raso di sale"
+    ],
+    "preparation": "Scubetiamo il tempeh e trasferìamolo nel mixer insieme ad aglio, scalogno e prezzemolo affettati grossolanamente. Aggiungiamo tutti gli altri ingredienti tranne la farina e frulliamo a impulsi fino a ottenere un trito molto fine, quasi omogeneo.\n\nVersiamolo in una ciotola, aggiungiamo la farina e mescoliamo con una spatola finché non risulterà perfettamente integrata. Se necessario aggiungiamo di sale.\n\nPreleviamo poco più di mezzo cucchiaio di impasto e formiamo le polpette.\n\nScaldiamo una padella con un filo d'olio e rosaliamo le polpette a fiamma moderata girandole delicatamente.\n\nCuociamole finché non risulteranno dorate su tutti i lati e il gioco è fatto!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 2,
+    "name": "Maionese senza uova in 2 versioni",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-03-10-22-14-04-53_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "dosi per 150 ml di maionese",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "100 ml olio di semi di girasole",
+      "50 ml di latte di soia non zuccherato e non aromatizzato",
+      "1 cucchiaino di senape",
+      "1 cucchiaio di limone",
+      "1/3 di cucchiaino di sale",
+      "curcuma qb"
+    ],
+    "preparation": "Mettiamo prima l'olio, poi il latte di soia FREDDO DA FRIGORIFERO, la senape, il sale, il limone e una punta di curcuma per colorare.\n\nE poi, via di minipimer: con movimenti costanti emuisioniamo la lecitina contenuta nel latte di soia con l'olio per creare una maionese perfetta. Attenzione: non è possibile utilizzare altri latti vegetali: viene SOLO con quello di SOIA.\n\n---",
+    "notes": "",
+    "category": "Salse & Condimenti"
+  },
+  {
+    "id": 3,
+    "name": "Frittata di ceci e verdure (Scarpasscia con peperoni)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-08-03-17-57-34-76_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "2 peperoni",
+      "250 g di cipolla",
+      "150 g di farina 0",
+      "50 g di farina di ceci",
+      "300 ml di acqua",
+      "50 ml di olio evo",
+      "erbe aromatiche",
+      "sale"
+    ],
+    "preparation": "Mondiate la cipolla e tagliatela a fettine sottili, pulite anche i peperoni eliminando anche i semi e i filamenti interni e tagliatele anche loro a fettine.\n\nIn una ciotola unite la farina di grano tenero, la farina di ceci, l'acqua, l'olio extra virgine di oliva, le erbe aromatiche, il sale e mischiare il tutto con una frusta, fino ad ottenere un composto omogeneo.\n\nUnite la pastella alle verdure e amalgamate il tutto. Oliate per bene una leccarda da forno e versate i peperoni con la pastella distribuzione poi in maniera omogenea su tutta la superficie.\n\nUn filo di olio extra vergine di oliva, se volete una spolverata di pan grattato o lievito alimentare in fiocchi e via in forno preriscaldato ventilato a 200 gradi per 30/40 minuti, fino a quando la scarpasscia di peperoni non sarà bella dorata.\n\nLasciatela raffreddare in modo da farla raffermare e poi tagliatela a fette\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 4,
+    "name": "Frittata con affettati Vegetal",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-07-23-08-52-32-68_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "2 frittative",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "100 gr di farina di ceci",
+      "200 gr acqua",
+      "30 gr olio evo",
+      "1/2 cucchiaino di sale fino",
+      "1 pizzico di curcuma",
+      "pepe qb"
+    ],
+    "preparation": "In una ciotola mescoliamo insieme la farina di ceci insieme al sale e alla curcuma. Aggiungiamo l'acqua e l'olio, mescolando energicamente per evitare grumi. Lasciamo riposare la pastella per circa 3 ore.\n\nAggiungiamo pepe a piacere e versiamo metà della pastella in una padella calda e leggermente unta. Cuociamo coperta a fiamma moderata per 5 minuti. Aiutandoci con una spatola o con un colpo di polso deciso, giriamola e cuociamo per altri 4 minuti.\n\nTrasfetiamo le frittative nei piatti e farciamo: su entrambe spalmiamo abbondante Fiorenza Vegetal\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 5,
+    "name": "Polpette di ceci e tofu",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-06-09-16-51-37-46_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "240 gr di ceci precotti",
+      "140 gr di tofu soft",
+      "120 gr di farina di ceci",
+      "1 cucchiaino di aglio in polvere",
+      "1 cucchiaino di cipolla in polvere",
+      "1 cucchiaino raso di sale",
+      "50 gr di pangrattato"
+    ],
+    "preparation": "Versiamo nel mixer i ceci insieme al tofu, alle spezie e al sale e frulliamo fino ad ottenere un impasto omogeneo. Aggiungiamo uno o due cucchiai di olio se necessario. Versiamo in una ciotola, aggiungiamo la farina di ceci e amalgamiamo bene.\n\nLasciamo riposare l'impasto in frigo per una ventina di minuti dopodiché prendiamone un quarto e stendiamolo su un foglio di carta da forno, inumidendo un poco le dita. Cospargiamo con pangrattato, premiamo bene e, con l'aiuto di un secondo foglio, voltziamo la fattina. Rimuoviamo delicatamente il primo foglio e impaniamo il secondo lato.\n\nCoprriamo il fondo di una padella con uno strato uniforme di olio e, quando caldo, trasferziamoci la fattina. Cuociamo per un paio di minuti per lato, finché non diventa dorata su entrambi i lati. Lasciamo colore l'olio in eccesso e serviamo con una spolverata di sale fino.\n\nPossiamo completare con una spruzzata di limone o con una deliziosa salsina, come quella che faceva mamma.\n\nE la ricetta della salsa? La trovate sul nostro libro!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 6,
+    "name": "Burger senza cottura",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-08-22-20-46-32-28_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4 burger",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "150g di fagioli rossi già cotti ben sciacquati",
+      "1 cucchiaio di olive taggiasche tritate",
+      "1 cucchiaio di semi di lino tritati",
+      "1 cucchiaio di olio d'oliva",
+      "q.b. sale",
+      "2 cucchiai pangrattato (se necessari)"
+    ],
+    "preparation": "Schiacciamo i fagioli rossi con una forchetta e li uniamo alle olive taggiasche, i semi di lino tritati, l'olio d'oliva, il sale e se necessario io pangrattato.\n\nMescoliamo bene e lasciamo riposare nel frigo per 10 minuti. In questo modo il composto si compatterà per bene. Formiamo i burger con le mani e serviamoli all'interno di un panino o con quello che preferiamo!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 7,
+    "name": "Gnocchi di zucchine",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-08-25-12-12-23-53_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "800g di zucchine peso a crudo (circa 4 zucchine medie)",
+      "800g di farina di riso (se volete potete utilizzare anche la 0 o la 1)",
+      "q.b. sale"
+    ],
+    "preparation": "Grattugiamo le zucchine con una grattugia a fori larghi. Possiamo utilizzarle così oppure possiamo frullarle con un minipimer (se non piaccionoi i pezzi), aggiungiamo la farina e mescoliamo con un cucchiaio fino ad ottenere un panetto omogeneo. Formiamo gli gnocchi con le mani e tuffiamoli in acqua bollente e salata.\n\nGli gnocchi sono pronti quando affiorano in superficie. Una volta affiorati, facciamo un ulteriore tempo di 30 secondi. Tosateli con un mestolo e condite come preferite!\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 8,
+    "name": "Lenticchie decorticate (Dahl)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-09-24-17-20-33-13_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "3 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "200g lenticchie decorticate intere",
+      "Acqua per ammollo + 350ml acqua per il composto",
+      "1 cucchiaio di olio evo",
+      "Pizzico di sale"
+    ],
+    "preparation": "Sciacqua le lenticchie sotto acqua corrente e mettile in ammollo con abbondante acqua per almeno 2-3 ore (puoi lasciarle anche tutta la notte). Scolare e sciacquare nuovamente sotto acqua corrente eliminando tutto il liquido di ammollo. Frullare insieme a 350ml di acqua, un pizzico di sale e un cucchiaio di olio evo, ottenendo un composto ben omogeneo.\n\nScalda e ungi una padella antiaderente, versa il composto con un mestolo e forma uno strato sottile aiutandoti con una spatola o col dorso del mestolo. Cuoci almeno 3-4 minuti, quando i bordi iniziano a staccarsi dalla padella gira dall'altro lato e cuoci altri 2 minuti.\n\nFarcisei a piacere a gusto!\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 9,
+    "name": "Camille Vegan (Dolcetti vegani)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-11-09-22-12-02-57_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "8 dolcetti",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "100 g carote pulite",
+      "65 g olio di semi o di riso",
+      "90 g zucchero di canna",
+      "180 g bevanda vegetale",
+      "75 g succo di arancia",
+      "La scorza grattugiata di 1 arancia",
+      "75 g mandorle",
+      "165 g farina 00",
+      "10 g lievito per dolci",
+      "1 pizzico di sale"
+    ],
+    "preparation": "La ricetta completa la trovi sul mio blog dolcetico.com. Clicca sul link in biografia \"Ricette dal blog\" per avere accesso diretto alle Camille vegan.",
+    "notes": "Ricetta da Camille vegan con hashtags: #camille #dolcivegani #merendine\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 10,
+    "name": "Piadina senza struttura",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-04-12-21-07-57_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "4 piadine",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Farina 00 350 g",
+      "Acqua 175 g",
+      "Olio extravergine d'oliva 35 g",
+      "Sale fino 1 pizzico"
+    ],
+    "preparation": "Per preparare la piadina senza struttura prendete una ciotola capiente e versate all'interno la farina, l'acqua, l'olio e il sale.\n\nPer preparare la piadina senza struttura impastare velocemente con le mani per ottenere un composto compatto e omogeneo, poi trasferite l'impasto sul piano di lavoro e dividetelo in 4 parti con un tarocco. Pirate velocemente ogni porzione di impasto facendola girare tra le mani.\n\nDisponete le pallime ottenute su un vassoio, coprite con pellicola e lasciate riposare a temperatura ambiente per 30 minuti.\n\nTrascorso questo tempo, stendete ciascuna pallina con il mattarello sul piano leggermente infarinato fino a uno spessore di 2-3 mm.\n\nScaldate bene una padella ampia e cuocete una piadina per volta per circa 2-3 minuti per lato, facendola ruotare con la mano per evitare che si formino bolle d'aria. Impilate le piadine\n\n---",
+    "notes": "",
+    "category": "Pane & Pizza"
+  },
+  {
+    "id": 11,
+    "name": "Taiyaki giapponesi (Dolcetti street food)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-26-15-47-30-02_a23b203fd3aafc6dcb84e438dda678b6.jpg"
+    ],
+    "servings": "8 taiyaki",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "1 uovo",
+      "40g di zucchero semolato",
+      "180g di latte",
+      "150g di farina 00 per dolci",
+      "7g di lievito vanigliato in polvere per dolci",
+      "qb olio semi per ungere la piastra",
+      "120g di tsubuan (confettura di fagioli rossi azuki - ricetta nel mio libro Washoku)",
+      "120g di crema pasticcera (o altra farcitura preferita)"
+    ],
+    "preparation": "Un tipico dolcetto street food giapponese. Taiyaki (la forma di pesce è augurio di felicità).",
+    "notes": "Da Chef Hirohiko Shoda. Hashtags: #iocucinoacasa #cipensoio #taiyaki #portafortuna #japan #streetfood #washoku #ciaosonohiro #chefhiro\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 12,
+    "name": "Polpettone di Patate ripieno",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-28-14-08-43-04_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "6 pezzi",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "4 patate medie lesse",
+      "Un uovo",
+      "50g di formaggio grattugiato",
+      "Sale a piacere",
+      "2 cucchiai di pangrattato",
+      "Olio d'oliva",
+      "200g di lenticchie cotte",
+      "4-5 fette di formaggio a fette"
+    ],
+    "preparation": "Per prima cosa in una ciotola schiaccliamo le patate lesse e tiepide. Aggiungiamo anche un uovo, il formaggio grattugiato, sale a piacere e mescoliamo bene. Per rendere il nostro composto più sodo e modellabile uniamo anche 2 cucchiai di pangrattato. Mescoliamo ancora e sarà pronto. Stendiamo il nostro impasto su un foglio di carta forno oliacato, dobbiamo ottenere un rettangolo. A questo punto lo farciamo con le lenticchie cotte e condiamo con olio e sale e le fette di formaggio. Chiudiamo bene formando un polpettone superficiale, aggiungiamo un po' di pangrattato e decoriamolo a strisce con l'aiuto di un coltello. Inforziamo a 180° per circa 20-25 minuti.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 13,
+    "name": "Ravioli a mezzaluna ripieni di spinaci e formaggio veg",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-28-14-10-42-08_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "300g di semola rimacinata di grano duro",
+      "150ml di acqua fredda",
+      "1/2 cucchiaino di sale",
+      "1kg di spinacini o spinaci (peso a crudo)",
+      "100g di spalmabile veg",
+      "Una noce di burro veg",
+      "q.b. salvia",
+      "olio d'oliva"
+    ],
+    "preparation": "Uniamo semola, acqua e sale. Formiamo un panetto e lasciamo riposare per 30 minuti a temperatura ambiente. Nel tempo cuociamo gli spinacini con olio e sale. Nel tempo cuociamo gli spinacini con olio (si bruceranno? Sì!). Una volta cotti li tritiamo e li uniamo al formaggio spalmabile veg. Stendiamo la pasta molto sottile - circa 1 millimetro - e ricaviamo dei cerchi con un coppapasta o un bicchiere. Aggiungiamo un cucchiaino di ripieno e chiudiamo a metà sigillando bene i bordi con le dita o con le punte di una forchetta. Tuffiamo le mezzelune in acqua bollente e salata e le cuociamo per circa 5 minuti. Le condiamo con burro veg e salvia.\n\nAccompagnarle con una salsina facoltativa che ho fatto con 100ml di bevanda veg, 25g di burro veg, 25g di farina e un pizzico di sale.\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 14,
+    "name": "Soffritto di Fagioli Borlotti con salsa",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-28-20-08-48-98_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2023-12-28-20-09-14-01_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2023-12-28-20-10-05-51_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2023-12-28-20-10-17-16_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "500g di fagioli borlotti già cotti",
+      "1 carota + 1/2 cipolla dorata per il soffritto",
+      "Sale",
+      "Pepe",
+      "Olio",
+      "3 cucchiai di olio d'oliva",
+      "Succo di 1/2 limone",
+      "1 cucchiaino di senape",
+      "1 cucchiaino di sciroppo d'acero o agave",
+      "Paprika dolce"
+    ],
+    "preparation": "Prepariamo un veloce soffritto con cipolla e carota. Schiacciamo i fagioli con una forchetta e uniamo il soffritto per insaporire. Regoliamo di sale e uniamo la farina di ceci. Mescoliamo e avvolgiamolo con la carta forno dando la forma dell'arrosto. Dato che i fagioli hanno una consistenza abbastanza farinosa non ho utilizzato i semi di lino per addensarlo. Per questo motivo vi consiglio di lasciarlo riposare nel frigo fino al giorno dopo (o fino a sera se lo fate al mattino). In questo modo risulterà più compatto post cottura.\n\nIl giorno dopo lo cuociamo nel forno a statico preriscaldato a 220 gradi per 40 minuti (avvolto nella carta forno e all'interno di uno stampo per plumcake).\n\nVi dico già che non avendo utilizzato i semi di lino sarà leggermente più friabile! Io l'ho accompagnato con una bella salsina e un'insalata top che arriverà presto.",
+    "notes": "Hashtags: #ricettelight #ricetteveloci #ricettafacile #ricettafacili #mangiaresano #cucinasana #senzaglutine #capodanno\n\n---",
+    "category": "Salse & Condimenti"
+  },
+  {
+    "id": 15,
+    "name": "Polpettone di Lenticchie, Farro e Porcini (Natale vegano)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2023-12-28-20-23-12-55_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "4/6 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "200 g di lenticchie cotte",
+      "150 g di farro perlato cotto",
+      "200 g di porcini freschi",
+      "2 foglie di verza",
+      "1 cipolla rossa",
+      "1 spicchio d'aglio",
+      "2 cucchiai di concentrato di pomodoro",
+      "20 ml di salsa di soia",
+      "olio EVO",
+      "sale",
+      "pepe bianco",
+      "140 g di farina tipo 1",
+      "140 g di semola rimacinata",
+      "90 g di acqua fredda",
+      "60 g di olio di semi di girasole",
+      "2 g sale",
+      "1 g di lievito istantaneo"
+    ],
+    "preparation": "Per 4 crostoni:\n50 g di semi di lino dorati Probios\n35 g di semi di zucca Probios\n25 g di semi di girasole Probios\n180 g di datterini gialli e rossi nickel free Probios\n140 g di piselli Probios\n130 g di edamame Probios\nOmega oil Probios\n1 spicchio d'aglio\nun limone bio\n\nTritiamo i semi di lino dorati e versiamoli in una ciotola. Aggiungiamo 95 g di acqua, mescoliamo e delificare per 10 min. Aggiungiamo i restanti semi, un pizzico di sale e mescoliamo. Versiamo in una piccola teglia foderata con carta forno e cuociamo in forno statico a 160 °C per 40 minuti, alzando a 190 °C per gli ultimi 5 min.\n\nMentre si fredda, frulliamo insieme piselli ed edamame, sciaccati e scolati, insieme a 2 cucchiai di Omega Oil, scorza di limone grattugiata e un pizzico di sale. Scoliamo i pomodorini e dividiamoli a rondelle o in quarti.\n\nDividiamo la sfoglia di semi in 4 crackers, ricopriamo con abbondante crema di piselli e edamame accompagniamo con i datterini nickel free.\n\nNoi abbiamo completato con un poco di olio aromatizzato con aglio e rosmarino tritati.",
+    "notes": "Hashtags: #probios #adv #probios1978 #biologico #vegan #freefrom #ricettesemplici #ricettedinatalale #veganuary2023 #ricettesemplici #ricettevegane #veganreels #veganitalia #veganoitaliano\n\n---",
+    "category": "Secondi"
+  },
+  {
+    "id": 16,
+    "name": "Tonnari Vegan fatto in Casa",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20230319-202342_Chrome.jpg"
+    ],
+    "servings": "non specificato",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "1 tazza di ceci lessati",
+      "un quarto di cipolla",
+      "1 foglio di alga nori",
+      "il succo di mezzo limone",
+      "un cucchiaino di senape",
+      "2-3 cucchiaini di capperi",
+      "pepe nero macinato fresco"
+    ],
+    "preparation": "(Ricetta da sasha carnevali - sito sashacarnevali.it/ricette/ricette)\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 17,
+    "name": "Farinata di ceci con porro e tofu affumicato",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20230816-195323_Chrome~2.jpg"
+    ],
+    "servings": "1 teglia da 28 cm",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "125 gr farina di ceci",
+      "380 acqua",
+      "Un pezzo di porro (20 cm parte bianca + 15/20 cm di foglie verdi)",
+      "Mezzo blocco di tofu affumicato",
+      "Olio, sale",
+      "35 gr di olio evo (3 cucchiai e mezzo)",
+      "5 gr di sale",
+      "3 spolverate di pepe",
+      "2 cucchiai e mezzo di lievito alimentare",
+      "2 cucchiaini di salsa di soia"
+    ],
+    "preparation": "Mescolare farina di ceci e acqua. Amalgamare bene e far riposare da un'ora fino anche a 2,3,4 ore o più.\n\nPassato il tempo in una padella antiaderente cuocere il porro tagliato a striscialine con un po' di olio e sale, quando questo sarà ammorbidito stricciolare dentro mezzo panetto di tofu affumicato. Fare insaporire qualche minuto e spegnere.\n\nRiprendere la pastella e aggiungere: olio, sale, pepe, lievito alimentare e salsa di soia. Aggiungere anche il contenuto della padella.\n\nUngere bene una teglia bassa antiaderente. Versare la pastella. Far cuocere in forno statico a 190 gradi: prima 10 minuti con la teglia appoggiata al pavimento del forno e poi 10 minuti nella parte più alta. Io poi la tengo anche 5/8 minuti nella parte centrale. Buona calda, con la crostcina. ma anche fredda il giorno dopo, in un panino magari con maionese, qualche goccia di limone sulla punta e aglio.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 18,
+    "name": "Biscotti di farro e mandorle",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231026-184108_Chrome~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "15 minuti",
+    "cook_time": "55 minuti",
+    "temperature": "",
+    "ingredients": [
+      "3 - 4 mele",
+      "250 gr di farina di farro bianco (oppure farina '00)",
+      "100 gr di farina di mandorle (oppure mandorle pelate da ridurre in polvere)",
+      "150 gr di zucchero di canna (oppure zucchero semolato) + 1 cucchiaio per spolverare la superficie",
+      "250 ml di latte di mandorla o latte di cocco (in alternativa latte di soia o di riso) a temperatura ambiente",
+      "50 gr di olio di semi di girasole (oppure semi che preferite)",
+      "16 gr di cremor tartaro (oppure di classico lievito per dolci)",
+      "buccia grattugiata di 1 limone",
+      "1/2 cucchiaino di cannella in polvere",
+      "1 pizzico di sale",
+      "1 cucchiaio di zucchero a velo per spolverare (facoltativo)",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 19,
+    "name": "Polpette di lenticchie",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231126-074040_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "30 minuti",
+    "temperature": "",
+    "ingredients": [
+      "Lenticchie scolate e ben sciacquate",
+      "Fiocchi d'avena tritati",
+      "Noci e carota tritate",
+      "Farina di ceci",
+      "Salsa di soia"
+    ],
+    "preparation": "In una ciotola verso le lenticchie scolate e ben sciacquate, quindi unisci un cucchiaio di fiocchi d'avena tritati, noci e carota tritate, un cucchiaio di farina di ceci, un cucchiaino di salsa di soia.\n\nImpasta con le mani fino ad ottenere una consistenza soda. Crea delle polpettine e impanale con il pangrattato. Inforna a 180° per circa 30 minuti, girandole a metà cottura. Prova con l'hummus o la maionese!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 20,
+    "name": "Zuppa di lenticchie e funghi",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231126-074115_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "15 minuti",
+    "temperature": "",
+    "ingredients": [
+      "Funghi",
+      "Aglio",
+      "Lenticchie (o se vuoi altri legumi)",
+      "Brodo vegetale"
+    ],
+    "preparation": "In una pentola fai saltare dei funghi e dell'aglio, aggiungi le lenticchie (o se vuoi altri legumi) e del brodo vegetale. Fai bollire per 10 minuti.\n\nFrulla una parte della zuppa per renderla più cremosa. Regola di olio e sale e servi con dei crostini!\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 21,
+    "name": "Polpettone di lenticchie",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231219-052748_Instagram~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "450g di lenticchie già cotte",
+      "200g di patate bollite (peso a crudo con la buccia)",
+      "40g di amido di mais",
+      "1 cucchiaio di concentrato di pomodoro",
+      "1 cucchiaio di salvia e rosmarino tritati",
+      "1 cucchiaio di semi di lino macinati",
+      "3 cucchiai di olio d'oliva",
+      "1 cucchiaino di sale"
+    ],
+    "preparation": "Ingredienti per 4 persone. Questo è uno dei miei cavalli di battaglia e vi assicuro che piace sempre a tutti! Noi lo mangiamo tutto l'anno ma vi assicuro per il Natale è divino! Si può preparare in anticipo ed è anche senza glutine!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 22,
+    "name": "Conchiglioni ripieni ai funghi",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231230-073148_Chrome~2.jpg"
+    ],
+    "servings": "2 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "125 g conchiglioni",
+      "150 g ricotta",
+      "30 g formaggio grattugiato",
+      "50 g mozzarella",
+      "200 g funghi porcini surgelati",
+      "250 ml besciamella",
+      "30 ml vino bianco",
+      "50 g porri",
+      "0,5 ciuffo prezzemolo",
+      "10 g burro",
+      "10 ml olio extravergine di oliva",
+      "Sale fino q.b.",
+      "Pepe q.b.",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 23,
+    "name": "Medaglioni di patate ripieni di funghi e provola",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20231230-074634_Chrome~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "800 gr patate",
+      "300 gr funghi champignon",
+      "200 gr farina 00",
+      "100 gr provola affumicata",
+      "50 gr parmigiano grattugiato",
+      "1 uovo",
+      "1 spicchio aglio",
+      "q.b. prezzemolo",
+      "q.b. olio extravergine di oliva",
+      "q.b. sale fino",
+      "q.b. pepe nero macinato"
+    ],
+    "preparation": "",
+    "notes": "I medaglioni di patate ripieni di funghi e provola sono un antipasto goloso con cuore filante, ideale per l'autunno. Una ricetta gustosa e versatile perfetta anche da servire come secondo piatto.\n\n---",
+    "category": "Secondi"
+  },
+  {
+    "id": 24,
+    "name": "Hummus di cannellini",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-01-23-08-16-57-26_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250 g di fagioli cannellini",
+      "50 g di carciofini sott'olio",
+      "25 ml di succo di limone",
+      "Curcuma",
+      "20 g di salsa tahina",
+      "2 o 3 cucchiai di acqua",
+      "Semi di sesamo"
+    ],
+    "preparation": "Seguire le istruzioni del sito ioscelgoveg.it per la ricetta completa.\n\n---",
+    "notes": "",
+    "category": "Salse & Condimenti"
+  },
+  {
+    "id": 25,
+    "name": "Fettuccine vegan al pesto di pistacchio",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-01-23-08-17-15-11_40deb401b9ffe8e1df2f1cc5ba480b12~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "1 mazzetto di basilico",
+      "La scorza e la polpa di 1 arancia",
+      "1/2 limone",
+      "La scorza di 1 limone",
+      "Sale",
+      "Pepe rosa",
+      "40 g di olio extravergine di oliva",
+      "20 g di pistacchi oppure mandorle",
+      "15 g di lievito alimentare in scaglie",
+      "250 g di fettuccine o altra pasta",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Salse & Condimenti"
+  },
+  {
+    "id": 26,
+    "name": "Pane di lenticchie",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-01-23-14-28-32-59_40deb401b9ffe8e1df2f1cc5ba480b12~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Cereali",
+      "Latte di cereali",
+      "Farina",
+      "Yougurt di soia"
+    ],
+    "preparation": "",
+    "notes": "Immagini di documenti informativi su nutrizione e piatto veg con porzioni indicate. Non è una ricetta ma una guida alle porzioni del Piatto Veg.\n\n---",
+    "category": "Pane & Pizza"
+  },
+  {
+    "id": 27,
+    "name": "Crespelle di lenticchie rosse",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-27-23-17-28-26_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "5 crespelle",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "150g acqua",
+      "150g lenticchie rosse decorticate"
+    ],
+    "preparation": "Mettiamo in ammollo e lenticchie rosse in una ciotola con l'acqua.\n\nPassate due ore, sciolatele il giorno dopo e mettetele in un contenitore alto, aggiungete l'acqua e frullate tutto con un frullatore ad immersione.\n\nUna volta ottenuta una purea, in una pentola antiaderente unta versate 3 cucchiai di purea, stendeteli con il cucchiaio e formate un cerchio.\n\nCuocete per tre minuti a lato.\n\nCondite a piacere e anche oggi ci siamo portati a casa una cena zero sbagli con il testo delle crespelle in italiano buono che ci siamo portati a casa una cena zero sbagli.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 28,
+    "name": "Tortilla di patate senza uova",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-27-23-09-11-03_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "220 g acqua",
+      "90 g farina di ceci",
+      "Un cucchiaio aceto di mele",
+      "Prezzemolo"
+    ],
+    "preparation": "Devi assolutamente provare questa ricetta perché salverà tantissimi dei tuoi pranzi e delle tue cene! È buonissima e super facile da fare!\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 29,
+    "name": "Polpettone con patate",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-27-23-12-10-94_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "240 g lenticchie cotte",
+      "240 g fagioli cannellini cotti",
+      "Uno spicchio d'aglio",
+      "Uno scalogno",
+      "2 patate medie lesse",
+      "Mazzetto di prezzemolo",
+      "Un cucchiaino di paprica",
+      "Un cucchiaino paprica affumicata",
+      "Un cucchiaio salsa di soia",
+      "Un cucchiaio concentrato di pomodoro",
+      "Sale",
+      "Pepe",
+      "Tre cucchiai amido di mais o fecola di patate",
+      "Tre cucchiai pangrattato",
+      "Patate",
+      "Aglio",
+      "rosmarino"
+    ],
+    "preparation": "Iniziamo mettendo in una ciotola capiente gli ingredienti, lenticchie, fagioli, l'aglio lo scalogno il prezzemolo le spezie la salsa di soia e il concentrato di pomodoro.\n\nAggiungiamo sale e pepe e frullando con un frullatore ad immersione. Se preferite lasciate dei legumi un pochino più grossolani. Aggiungete poi in ultimo l'amido di mais e il pangrattato. Giamo per bene e lasciamo riposare in frigo per 10 minuti.\n\nNel frattempo prepariamo il contorno di patate.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 30,
+    "name": "Crespelle di lenticchie rosse (variante)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-27-23-13-47-40_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "Variante della ricetta di crespelle di lenticchie rosse con procedimento simile ma dettagli specifici non completamente leggibili nell'immagine.\n\n---",
+    "category": "Contorni"
+  },
+  {
+    "id": 31,
+    "name": "Crespelle di lenticchie rosse (ricetta salva vita)",
+    "uncertain": true,
+    "uncertainty_reason": "Testo parzialmente leggibile, ma contiene informazioni sufficienti per ricostruire la ricetta base",
+    "sources": [
+      "Screenshot_2024-02-20-19-37-13-41_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Per 5-6 crespelle",
+      "130 g di lenticchie decorticate",
+      "70 g di quinoa",
+      "270 g di acqua pulita",
+      "Un cucchiaino di sale",
+      "Un cucchiaio d'olio"
+    ],
+    "preparation": "Ammollate le lenticchie e la quinoa in acqua bollente per un'ora oppure 2-3 ore in acqua fredda.\n\nDopodiché sciolatele, sciacquatele bene e frullate insieme all'acqua pulita, sale e olio.\n\nIn una padella antiaderente calda fate cadere un cucchiaio di composto per porzione, cuocendolo.",
+    "notes": "È una ricetta che ho trovato su Instagram da cucinaveгza. La ricetta potrebbe preparare il giorno prima e cuocerlo direttamente la mattina di Natale.\n\n---",
+    "category": "Contorni"
+  },
+  {
+    "id": 32,
+    "name": "Crostata alla crema di agrumi",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-24-07-21-11-33_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "300 g zucchero di canna",
+      "170 g acqua fredda",
+      "100 g olio extravergine d'oliva",
+      "100 g olio di semi",
+      "700 g farina 00",
+      "16 g lievito per dolci",
+      "Scorza di limone",
+      "300 g spremuta di arancia (o succo di arancia)",
+      "250 g acqua",
+      "150 g zucchero",
+      "50 g amido di mais",
+      "Scorza di limone",
+      "Scorza di arancia"
+    ],
+    "preparation": "Partiamo dalla frolla: in una ciotola capiente aggiungiamo zucchero, un pizzico di sale, i due oli, l'acqua e la scorza di limone, riziamo a mescolare con una frusta.\n\nAggiungiamo setacciando la farina e il lievito. Impastiamo prima con il cucchiaio e poi con le mani fino ad ottenere un panetto liscio. Fatelo riposare al chiuso (pellicola a freddo per 10 minuti).\n\nNel frattempo prepariamo la crema di agrumi, impastando prima con il cucchiaio e poi con le mani fino ad ottenere un panetto liscio. Fatelo riposare al chiuso (pellicola a freddo per 10 minuti).\n\nNel frattempo prepariamo la crema di agrumi.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 33,
+    "name": "Pane di lenticchie (ricetta IOs celgoveg)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-02-27-23-09-11-03_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "Ricetta di pane di lenticchie dal sito ioscelgoveg.it. I dettagli completi non sono completamente leggibili nell'immagine.\n\n---",
+    "category": "Pane & Pizza"
+  },
+  {
+    "id": 34,
+    "name": "Linguine in salsa di anacardi",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-05-25-20-24-09-18_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "400 g di linguine",
+      "100 g di asparagi",
+      "100 g di barbabietola",
+      "100 g di tofu soft",
+      "100 g di latte",
+      "100 g di anacardi"
+    ],
+    "preparation": "Bolliamo gli anacardi per dieci minuti, scollamoli e...\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 35,
+    "name": "Torta ai semi",
+    "uncertain": true,
+    "uncertainty_reason": "Testo parzialmente leggibile, dettagli sulla preparazione non completamente chiari",
+    "sources": [
+      "Screenshot_2024-05-25-20-25-32-11_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Semi di vario tipo"
+    ],
+    "preparation": "",
+    "notes": "Ricetta con focus su semi. I dettagli completi non sono sufficientemente leggibili nell'immagine fornita.\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 36,
+    "name": "Pasta al seitan e curry",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-05-25-20-25-41-05_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "150 g di patate",
+      "120 g di formaggio",
+      "110 g di yogurt greco",
+      "100 g di farina 00",
+      "5 g di lievito istantaneo per torte salate"
+    ],
+    "preparation": "Scubetiamo le patate, cuociamole a vapore per 20 minuti, schiacciamole e condiamole.\n\nUniamo alla farina lo yogurt, il lievito, il sale e amalgamiamo fino ad ottenere un panetto omogeneo. Stendiamolo sul piano infarinato ottenendo un rettangolo di 25x30 cm.\n\nFarciam con patate e formaggio, chiudiamo e compastiamo.\n\nCuociamo in padella per 10 minuti, girando a metà cottura.\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 37,
+    "name": "Roll Estivo",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-07-23-16-32-34-31_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "Non specificato",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Due zucchine grandi",
+      "Spalmabile veg",
+      "Pomodori secchi",
+      "Olive Taggiasche",
+      "Rucola",
+      "Salmone vegetale opzionale"
+    ],
+    "preparation": "Questo roll dovete assolutamente provarlo, facilissimo da fare e dai sapori esplosivi si, quello che vedete sopra è un finto salmone, un salmone vegetale.\nIniziamo tagliando le zucchine con una mandolina a fette sottili, grigliamole con un po' di olio e sale.\nFacciamo raffreddare e scendiamole su un foglio di carta forno sovrapponendole.\nCondiamo con spalmabile vegetale, un trito di pomodori secchi e olive Taggiasche e della rucola.\nArrottoliamo con l'aiuto della carta forno. Tagliamo a fettine.\nlo l'ho condito con un altro cucchiaino di spalmabile ed il salmone vegetale tritato. se non avete il salmone vegetale potete sostituirlo con delle mandorle o della frutta secca tritata.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 38,
+    "name": "Tiramisù Freddo Senza Latticini",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-08-03-14-17-11-53_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Biscotti secchi (io ne ho usati circa 30)",
+      "200g di yogurt vegetale",
+      "250g di formaggio spalmabile vegetale",
+      "2 cucchiai di sciroppo d'acero",
+      "1 limone scorza + succo",
+      "Fettine di limone"
+    ],
+    "preparation": "Non specificata nel dettaglio, ma è una teglia da 25x15.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 39,
+    "name": "Polpette al curry",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-08-23-08-42-34-19_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "2 carote cotte",
+      "200g di tofu firm",
+      "2 cucchiaini di curry",
+      "1 cucchiaio di semi di lino macinati",
+      "3 cucchiai di pangrattato circa",
+      "100ml di yogurt di soia senza zuccheri",
+      "1/2 succo di limone",
+      "3 cucchiai di olio",
+      "qb sale e pepe",
+      "200g di tofu firm",
+      "qb amido di mais",
+      "1 aglio schiacciato",
+      "1cm di zenzero fresco grattugiato",
+      "4 cucchiai concentrato di pomodoro",
+      "3 cucchiai di salsa di soia",
+      "1 cucchiaio sciroppo d'acero",
+      "70ml di acqua"
+    ],
+    "preparation": "Prima soffriggete il tofu passato nell'amido fino a doratura. Tenetelo da parte e soffriggete aglio e zenzero...\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 40,
+    "name": "Polpettone Vegetale",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-01-14-14-34-42_1c337646f29875672b5a61192b9010f9~2.jpg",
+      "Screenshot_2024-09-01-14-14-59-20_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "2 zucchine piccole",
+      "500g di ceci già cotti",
+      "200g di patate bollite (peso a crudo con la buccia)",
+      "40g di amido di mais",
+      "2 cucchiai di semi di lino macinati",
+      "3 cucchiai di olio d'oliva",
+      "1 cucchiaino di sale",
+      "qb pepe",
+      "salvia e rosmarino",
+      "4 cucchiai di pangrattato (o farina di ceci per una versione senza glutine)",
+      "3 cucchiai di olio d'oliva",
+      "qb basilico fresco"
+    ],
+    "preparation": "Tagliamo le zucchine a cubetti e le cuociamo in padella per 5 minuti (devono risultare dorate ma croccanti).\nFrulliamo i ceci già cotti assieme alla patata bollita, l'olio, il sale, le zucchine cotte e gli aromi. Aggiungiamo poi amido di mais, semi di lino macinati e un po' di pangrattato (o farina di ceci).\nLo lasciamo riposare in ciotola per 10 minuti. Se l'impasto non risulta ancora molto compatto possiamo aggiungere un po' di pangrattato (o farina di ceci).\nMescoliamo bene e diamo forma al polpettone. Lo avvolgiamo nella carta da forno e lo lasciamo riposare nel frigo, in questo modo si compatterà maggiormente. lo di solito lo lascio riposare fino al giorno dopo, poi lo cuocio nel forno statico preriscaldato a 220 gradi per 40 minuti.\nPrima di tagliarlo lo lasciamo raffreddare. lo l'ho accompagnato con una salsina a base di olio d'oliva e basilico fresco e tanti pomodorini.",
+    "notes": "Per Federico ho fatto la stessa identica ricetta ma ho sostituito i ceci interi con quelli decorticati e ho omesso il sale. L'ha adorato!\ni semi di lino si trovano in qualunque supermercato, per macinarli vi basta utilizzare un macinacaffè elettrico, si trova online ed è un essenziale della mia cucina!\nCredetemi non vi deluderà\n\n---",
+    "category": "Secondi"
+  },
+  {
+    "id": 41,
+    "name": "Barrette snack con lo scarico del latte vegetale",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-08-13-15-26-00_f9ee0578fe1cc94de7482bd41accb329.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "35 g di okara (polpa di avanzo)",
+      "70 g di fiocchi di avena",
+      "3 cucchiai di sciroppo d'acero o agave",
+      "1 cucchiaio di salsa tahini o burro di arachidi",
+      "1 cucchiaino di semi di chia o semi di sesamo",
+      "1 pizzico di sale",
+      "3/5 gocce di estratto di vaniglia",
+      "30 g di cioccolato fuso per guarnire (facoltativo)"
+    ],
+    "preparation": "Avete presente lo scarico di avanzo del \"latte\" vegetale prodotto a casa con mandorle, nocciole, soia, fiocchi di avena e via dicendo? Oggi, insieme a @wellnesswithbrina, impariamo a trasformarlo in pratiche e golose crunchy bar!",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 42,
+    "name": "Plum-cake al Cioccolato",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-08-15-52-10-31_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "1 stampo per plum-cake da 25x10",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "300g di farina 1 (ok anche 00)",
+      "350ml di bevanda vegetale (io ho usato avena)",
+      "40g di cacao amaro",
+      "60ml di olio d'oliva delicato o olio di semi",
+      "70g di zucchero",
+      "1 bustina di lievito per dolci (16g)",
+      "qb gocce cioccolato fondente"
+    ],
+    "preparation": "Uniamo tutti gli ingredienti secchi quindi farina, lievito, zucchero e cacao. Infine aggiungiamo la bevanda vegetale e l'olio. Mescoliamo e traseriamo il composito in uno stampo per plum-cake imburrato (io burro veg) e infarinaio e aggiungiamo le gocce di cioccolato in superficie.",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 43,
+    "name": "Plum-cake alla Frutta Fresca",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-08-15-53-30-34_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "1 stampo da plum-cake da 25x10",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250g di farina 1 (va bene anche 00)",
+      "50g di fecola di patate",
+      "70g di zucchero",
+      "300ml di bevanda vegetale",
+      "60ml di olio d'oliva delicato oppure semi (mais o girasole)",
+      "1 bustina di lievito per dolci",
+      "250g di mirtilli freschi",
+      "125g di lamponi",
+      "qb mandorle in scaglie (facoltative)",
+      "scorza grattugiata di 1/2 limone facoltativa"
+    ],
+    "preparation": "in una ciotola uniamo la farina setacciata, la fecola di patate e il lievito per dolci. Poi lo zucchero e gli ingredienti liquidi quindi l'olio di semi e la bevanda vegetale. Infine aggiungiamo i mirtilli e i lamponi e traseriamo l'impasto in uno stampo imburrato (io ho usato burro veg) e infarinaio con le mandorle in scaglie in superficie.",
+    "notes": "Ti consiglio di conservarlo in un contenitore ermetico nel frigorifero!\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 44,
+    "name": "Pizzette Soffici",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-11-11-15-33-91_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2024-09-11-11-16-00-91_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "10 pizzette",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250g di farina forte (0 o 00)",
+      "250g di farina 1",
+      "1.5g di lievito di birra secco + 1/2 cucchiaino di zucchero + qb acqua tiepida",
+      "100ml di bevanda di avena tiepida",
+      "200ml di acqua tiepida",
+      "10g di sale",
+      "30ml di olio d'oliva",
+      "400g di polpa per pizza",
+      "sale",
+      "origano",
+      "olio d'oliva"
+    ],
+    "preparation": "Iniziamo sciogliendo il lievito con lo zucchero e l'acqua tiepida. Poi uniamo le farine, il lievito sciolto, 150ml di acqua, la bevanda vegetale (darà sofficitá extra alle nostre pizzette) e impastiamo dando forma ad un panetto omogeneo. Per ultimi aggiungiamo il sale assieme ai 50ml di acqua restanti e l'olio d'oliva. Impastiamo nuovamente e lasciamo riposare il panetto in ciotola per un'ora, coperto con un canovaccio, a temperatura ambiente.\nTrascorso il tempo iniziamo a dare le pieghe al nostro impasto, ne facciamo quattro, una dall'alto verso il centro, una dal basso verso il centro e la stessa cosa da destra e da sinistra! Pratichiamo queste pieghe per 3 volte ogni mezzo'ora. Fanno davvero la differenza! Riponiamo l'impasto coperto con un canovaccio (o un piatto) nel frigo, fino al giorno successivo. Il giorno dopo lasciamo acclimatare l'impasto per un'ora fuori dal frigo e poi formiamo delle pallline che lasceremo riposare per 30 minuti. Trascorso il tempo diamo forma alle nostre pizzette e le farciremo con la polpa per pizza condita con olio, sale e origano.",
+    "notes": "se vuoi farle in giornata aumenta il lievito di birra secco a 2,5g e lascia lievitare l'impasto nel forno spento con una ciotola di acqua calda sul fondo per minimo 5 ore. Poi procedi normalmente.\n\n---",
+    "category": "Contorni"
+  },
+  {
+    "id": 45,
+    "name": "Gnocchetti di Cannellini",
+    "uncertain": true,
+    "uncertainty_reason": "Immagine mostra solo una parte del procedimento, alcuni dettagli potrebbero non essere completi",
+    "sources": [
+      "Screenshot_2024-09-11-17-17-42-83_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "2 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "220 g di cannellini cotti",
+      "90 g di farina 00",
+      "25 g di basilico",
+      "+ farina per lo spolvero",
+      "250 g di pomodorini freschi",
+      "Cinque foglie di basilico",
+      "Abbondante olio Evo",
+      "Una presa di sale"
+    ],
+    "preparation": "Scola e sciacqua bene una scatola di canini cotti, quindi frullali con il basilico.\nAggiungi la farina e impasta prima nella ciotola e poi finisci su un piano da lavoro. Devi ottenere un panetto morbido ma non appiccicoso. Se necessario aggiungi altra farina oltre quella indicata, ma senza esagerare (scola bene i cannellini e asciuga le foglie di basilico, in modo da non avere acqua in più rispetto alle dosi indicate nella lista ingredienti).\nCon le forbici taglia gli gnocchetti, non è necessario essere troppo precisi ma è bene farli più o meno tutti della stessa dimensione.\nCuoci in acqua bollente salata 5 - 7 minuti. Non ti preoccupare questi non si sciolgono come gli gnocchi di patate, quindi falli cuocere bene!\nPer il sugo di pomodoro: Riscalda le zucchine a cubetti e le cuociamo in padella per 5 minuti (devono risultare dorate ma croccanti).\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 46,
+    "name": "No-tella del futuro",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-12-16-46-41-12_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "200 g di nocciole",
+      "80 g di zucchero a velo",
+      "20 g di cacao"
+    ],
+    "preparation": "Tostate le nocciole in forno o in friggitrice ad aria e poi con un panno strofinatelе cercando di togliere la pellicina.\nFrullatele a massima potenza insieme allo zucchero e una volta ottenuta una crema aggiungete il cacao.\nLa vostra Nutella è pronta e si conserva tranquillamente anche in dispensa per qualche mese.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 47,
+    "name": "Polpette Perfette Senza Carne",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-26-08-35-25-50_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "50 funghi shiitake reidratati e tritati al coltello",
+      "250 g di ceci frullati",
+      "1 cucchiaio di salsa di soia",
+      "1 mazzetto di prezzemolo",
+      "1 cucchiaio di lievito alimentare"
+    ],
+    "preparation": "Utilizzeremo i funghi shiitake per aggiungere un tocco di umami, in una ciotola versiamo i ceci cotti, prezzemolo, lievito alimentare e salsa di soia, uniamo i funghi idratati e frulliamo bene, aggiungiamo un filo d'olio amalgamiamo e formiamo le polpette. L'impasto non sarà troppo appiccicoso, né secco. Possiamo saltarle in padella con un filo di olio ed uno spicchio d'aglio o aggiungerle al sugo di pomodoro e alle creme che preferie.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 48,
+    "name": "Crostatin Salata con Ricotta e Pomodorini Confit",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-21-44-60_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-22-07-47_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-22-14-09_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-26-13-05_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-26-23-75_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-26-30-30_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-26-35-74_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "45 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Farina 0: 300 g",
+      "Farina integrale: 50 g",
+      "Lievito istantaneo per salati: 1 cucchiaino",
+      "Curcuma in polvere: 1/2 cucchiaino",
+      "Acqua: 130 g",
+      "Anacardi: 80 g",
+      "Limoni: 1",
+      "Lievito alimentare in fiocchi: 1 cucchiaio",
+      "Pomodorini: 200 g",
+      "Timo: 2 cucchiaini",
+      "Origano: 1 cucchiaio",
+      "Zucchero: 1/2 cucchiaino"
+    ],
+    "preparation": "### 1/5 Preparate i pomodorini confit\nTagliate i pomodorini a metà e disponeteli in una teglia ricoperta di carta forno con la metà tagliata rivolta verso l'alto. Conditeli con il timo, l'origano, l'olio di oliva, il sale e lo zucchero e cuoceteli a 200° in forno ventilato per 20 minuti.\n\n### 2/5 Preparate la ricotta\nMettete a mollo gli anacardi in acqua bollente per 10 minuti quindi scolateli, sciacquateli e frullateli con il succo di limone, il lievito alimentare, un pizzico di sale e 80 g di acqua fredda.\n\n### 3/5 Preparate la frolla\nIn una ciotola versate la farina, la curcuma, il lievito istantaneo e il sale, quindi aggiungetè l'olio di girasole e l'acqua e mescolate aiutandovi con un cucchiaio. Impastate prima con il cucchiaio e quindi con le mani fino a ottenere una palla liscia e omogenea. Impanate prima con il cucchiaio e quindi con le mani fino a ottenere una palla liscia e omogenea. Fate riposare l'impasto in frigorifero per almeno 30 minuti.\n\n### 4/5 Cuocete le crostatine\nStendete l'impasto in modo che abbia uno spessore di circa mezzo centimetro e ricavatene dei dischi con l'aiuto di un coppapasta. Foderate gli stampini per crostatine con i dischi di pasta frolla e bucherellate il fondo con una forchetta. Cuocete le crostatine in forno statico a 180° per 10-15 minuti, o comunque fino a che non risulteranno dorate.\n\n### 5/5 Farcite le crostatine\nFarcite ogni crostata con la ricotta e completate con qualche pomodorino confit.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 49,
+    "name": "Banana Bread",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-27-22-53_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "",
+    "prep_time": "40 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Banana: 3",
+      "Farina 0: 220 g",
+      "Latte di avena senza zucchero: 200 g",
+      "Zucchero: 70 g",
+      "Lievito per dolci: 15 g",
+      "Cannella: 1 cucchiaino",
+      "Olio di semi di girasole: 50 g",
+      "Sale: q.b."
+    ],
+    "preparation": "### 1/4 Preparate la purea di banane\nSchiacciate le banane all'interno di una ciotola aiutandovi con una forchetta, oppure frullatele fino a ottenere un composito liscio e omogeneo.\n\n### 2/4 Preparate l'impasto\nIn una ciotola capiente mescolate il latte di avena, la purea di banana, l'olio di semi e lo zucchero. Aggiungete quindi la farina, il lievito, la cannella e un pizzico di sale.\n\n### 3/4 Versate nello stampo\nVersate il composito in uno stampo da plum cake leggermente oliato e infarianto oppure rivestito di carta forno.\n\n### 4/4 Cuocete il banana bread\nCuocete il banana bread in forno statico a 180° per 30-40 minuti, o comunque finché non risulterà ben dorato fuori e asciutto dentro.",
+    "notes": "Questo banana bread si conserva fino a 4 giorni fuori dal frigorifero all'interno di un contenitore a chiusura ermetica. Si può congelare, meglio se in singole fette. In questo caso, prima di consumarlo, lasciatelo per almeno un'ora a temperatura ambiente oppure mettetelo in forno statico già caldo a 180° per 5-10 minuti.\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 50,
+    "name": "Cotolette di Ceci",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-33-22-01_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-33-33-02_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-33-48-95_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "10 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Farina di ceci: 160 g",
+      "Amido di mais: 1 cucchiaio",
+      "Paprika dolce: 1 cucchiaio",
+      "Cumino: 1 cucchiaio",
+      "Pangrattato: q.b.",
+      "Olio extravergine di oliva: 2 cucchiai",
+      "Sale: q.b."
+    ],
+    "preparation": "### 1/3 Preparate l'impasto\nIn una ciotola capiente versate la farina di ceci, l'amido di mais, il sale, la paprika e il cumino e amalgamate bene. Aggiungete l'acqua a temperatura ambiente e mescolate con un cucchiaio fino a ottenere un composito lavorabile. Servirà una quantità di acqua di poco inferiore al peso della farina di ceci.\n\n### 2/3 Impanate le cotolette\nPrelevate una piccola quantità di composito e trasferitela in un piatto fondo dove avrete messo pangrattato in abbondanza. Aiutandovi con un cucchiaio o con le mani, fate aderire il pangrattato a tutta la superficie, quindi schiacciate per dare la forma di una cotoletta.\n\n### 3/3 Cuocete le cotolette\nScaldate l'olio di oliva in una padella antiaderente dal fondo piatto e cuocete le cotolette circa 2 minuti per lato a fuoco medio.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 51,
+    "name": "Hummus di Ceci al Basilico con Stick di Verdure",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-34-35-98_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-34-47-43_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "10 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Sedano: 200 g",
+      "Carote: 200 g",
+      "Ceci cotti: 400 g",
+      "Avocado: 1",
+      "Basilico: 16 foglie",
+      "Tahina (burro di sesamo): 40 g",
+      "Limoni: 1",
+      "Aglio: 1 spicchio",
+      "Facoltativo Sale: q.b."
+    ],
+    "preparation": "Frullate gli anacardi con lo yogurt di soia, l'olio di cocco, lo sciroppo d'agave, la vaniglia e un pizzico di sale fino a ottenere un composito liscio e omogeneo. Versatelo nel bicchiere con i datteri e i biscotti sul fondo e livellatene la superficie aiutandovi con un cucchiaio. Fate riposare in frigo per almeno 30 minuti, così che si solidifichino.\n\n---",
+    "notes": "",
+    "category": "Salse & Condimenti"
+  },
+  {
+    "id": 52,
+    "name": "Quinoa in Insalata con Ceci e Pomodorini",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-35-34-37_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-35-46-84_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "40 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Quinoa: 320 g",
+      "Ceci cotti: 400 g",
+      "Pomodorini: 400 g",
+      "Indivia belga: 40 g",
+      "Rucola: 40 g",
+      "Cipollotto: 2",
+      "Facoltativo Tahina (burro di sesamo): 40 g",
+      "Limoni: 1",
+      "Aceto balsamico: 2 cucchiai",
+      "Olio extravergine di oliva: 2 cucchiai",
+      "Sale: q.b."
+    ],
+    "preparation": "Non specificata nel dettaglio nel testo letto, ma è un'insalata che richiede 40 minuti totali.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 53,
+    "name": "Burger di Cannellini ai Pomodori Secchi e Olive",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-36-34-08_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-36-42-94_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-37-09-52_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "40 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Fagioli cannellini cotti: 400 g",
+      "Cipolla: 1",
+      "Facoltativo Pomodori secchi: 8",
+      "Olive taggiasche denocciolate: 4 cucchiai",
+      "Basilico: 12 foglie",
+      "Pangrattato: q.b.",
+      "Olio extravergine di oliva: 2 cucchiai",
+      "Sale: q.b."
+    ],
+    "preparation": "Mettete in un mixer i fagioli cannellini, i pomodori secchi precedentemente reidratati in acqua tiepida per 10 minuti, le olive, la cipolla e il basilico. Tritate fino a raggiungere una consistenza abbastanza omogenea. Aggiustiate di sale.\n\nTrasferite il composito in una ciotola e aggiungete poco alla volta quanto pangrattato serve per ottenere un composito compatto e malleabile.\n\nPrelevando una piccola quantità di composito per volta, date la tipica forma schiacciat dei burger aiutandovi con le mani o con un coppapasta.\n\nDisponete i burger all'interno di una teglia ricoperta di carta forno, spennellateli con l'olio di oliva da ambo i lati e cuoceteli in forno statico a 200° per 20 minuti, girandoli a metà cottura.\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 54,
+    "name": "Cheesecake al Bicchiere",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-53-06-87_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-53-18-61_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-53-46-01_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "1 persona",
+    "prep_time": "20 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Anacardi: 25 g",
+      "Datteri di Medjoul denocciolati: 2",
+      "Biscotti: 30 g",
+      "Yogurt di soia al naturale: 50 g",
+      "Sciroppo d'agave: 1 cucchiaio",
+      "Vaniglia in polvere: 1/4 cucchiaino",
+      "Olio di cocco: 5 g",
+      "Sale: q.b."
+    ],
+    "preparation": "### 1/3 Ammollate gli anacardi\nMettete a mollo gli anacardi in acqua bollente per 10 minuti, quindi scolateli e sciacquateli.\n\n### 2/3 Tritate i datteri e i biscotti\nMettete in un mixer i datteri denocciolati e i biscotti e tritate fino a ottenere un composito dalla consistenza granulosa. Versatelo in un bicchiere e schiacciatelo bene sul fondo, aiutandovi con il dorso di un cucchiaio.\n\n### 3/3 Preparate la base della cheesecake\nFrullate gli anacardi con lo yogurt di soia, l'olio di cocco, lo sciroppo d'agave, la vaniglia e un pizzico di sale fino a ottenere un composito liscio e omogeneo. Versatelo nel bicchiere con i datteri e i biscotti sul fondo e livellatene la superficie aiutandovi con un cucchiaio. Fate riposare in frigo per almeno 30 minuti, così che si solidifichino.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 55,
+    "name": "Porridge con Banana e Mirtilli in Latte di Avena",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-09-28-10-55-16-70_a6242bcd5bab57420b79197374c9de61.jpg",
+      "Screenshot_2024-09-28-10-55-24-20_a6242bcd5bab57420b79197374c9de61.jpg"
+    ],
+    "servings": "",
+    "prep_time": "10 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Latte di avena senza zucchero: 220 g",
+      "Fiocchi di avena: 45 g",
+      "Mirtilli: 80 g",
+      "Banana: 1/2",
+      "Semi di chia: 15 g",
+      "Vaniglia in polvere: q.b."
+    ],
+    "preparation": "Vedi dosi per componente con toggle nel dettaglio (preparazione non specificata nel testo, ma è un porridge semplice da preparare mescolando gli ingredienti).\n\n---",
+    "notes": "",
+    "category": "Colazione"
+  },
+  {
+    "id": 56,
+    "name": "Torta al Cioccolato Veg",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-10-14-20-16-48-55_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "unspecified",
+    "prep_time": "",
+    "cook_time": "30-35 minuti",
+    "temperature": "180 gradi",
+    "ingredients": [
+      "200 g farina a scelta",
+      "120 g (o più potete arrivare a 180 g) zucchero di canna chiaro",
+      "60 g cacao amaro",
+      "200 ml bevanda vegetale (io latte di cocco acquoso)",
+      "110 ml olio di cocco sciolto o girasole",
+      "120 g purea di mele (o burro di mele) che sostituisce le 2 uova della mia ricetta originale",
+      "1 bustina di lievito vanigliato",
+      "frutta fresca e cioccolato fondente sciolto"
+    ],
+    "preparation": "Amalgama latte, olio e zucchero di canna sbattendoli a mano con la frusta. Aggiungi la purea di mele densa. Aggiungi a poco a poco gli altri ingredienti secchi (magari setacciando) sempre amalgamando con la frusta fino a ottenere un composto omogeneo.\nVersa in una teglia imfarinata.\nIn forno caldo a 180 gradi per 30-35 minuti.\nFai la prova stecchino prima di sfornare! Decora con cioccolato sciolto e frutta fresca!\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 57,
+    "name": "Torta Salata Vegana",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-11-01-17-31-00-43_40deb401b9ffe8e1df2f1cc5ba480b12~2.jpg",
+      "Screenshot_2024-11-01-17-31-12-06_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "8",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "260 g farina 0",
+      "260 g farina integrale",
+      "120 ml olio d'oliva",
+      "230 ml acqua",
+      "sale fino q.b.",
+      "4 cipolle rosse",
+      "4 cucchiaini zucchero",
+      "100 ml acqua",
+      "olio extravergine di oliva q.b.",
+      "sale fino q.b.",
+      "6 patate",
+      "sale fino q.b.",
+      "olio extravergine di oliva q.b.",
+      "300 g farina di ceci",
+      "400 ml acqua",
+      "sale fino q.b.",
+      "timo q.b."
+    ],
+    "preparation": "Non specificato nel dettaglio, seguire le istruzioni visibili dalle immagini.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 58,
+    "name": "Crostata alla Crema di Agrumi (Versione 2)",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-11-09-09-36-59-08_1c337646f29875672b5a61192b9010f9~2.jpg",
+      "Screenshot_2024-11-09-09-37-10-86_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "180 gradi",
+    "ingredients": [
+      "300 g zucchero di canna",
+      "170 g acqua fredda",
+      "100 g olio extravergine d'oliva",
+      "100 g olio di semi",
+      "700 g farina 00",
+      "16 g lievito per dolci",
+      "Scorza di limone",
+      "300 g spremuta di arancia (o succo di arancia)",
+      "250 g acqua",
+      "150 g zucchero",
+      "50 g amido di mais",
+      "Scorza di limone",
+      "Scorza di arancia"
+    ],
+    "preparation": "Partiamo dalla frolla: in una ciotola capiente aggiungiamo zucchero, un pizzico di sale, i due oli, l'acqua e la scorza di un limone, iniziamo a mescolare con una frusta. Aggiungiamo setacciando la farina e il lievito. Impastiamo prima con il cucchiaio e poi con le mani fino ad ottenere un panetto liscio. Fatelo riposare al chiuso (pellicola trasparente) per due ore in frigo.\nUna volta tirato fuori spezzettaielo con un coltello e impastaielo nuovamente.\nStendeielo con un mattarello tra due fogli di carta forno e posizionaielo sullo stampo oliato per crostata. Ricopriielo con pellicola e fate riposare altri 30 minuti in frigo. O 10 in freezer.\n\n### PER FARE LA CREMA:\nVersiamo La spremuta d'arancia in un pentolino, aggiungiamo lo zucchero, la scorza di limone e la scorza di arancia.\nFacciamo cuocere a fiamma media per qualche minuto, togliamo la scorza di arancia. In una ciotolina aggiungiamo l'amido di mais nell'acqua, togliamo tutti i grumi e aggiungiamolo al pentolino con gli altri ingredienti, giriamo con una frusta sempre a fiamma media fino a quando non uscirà una cremina.\nFatela raffreddare.\nAggiungiamiola allo stampo e chiudiamo la crostata con le strisce di frolla.\nForno a 180° per 30 minuti.\nServire con zucchero a velo.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 59,
+    "name": "Sugo di Noci al Miso",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-11-27-11-26-16-96_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2024-11-27-11-26-40-42_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "Per una persona vi serviranno due cucchiai di tahina liquida, un cucchiaio di miso e pasta a piacere"
+    ],
+    "preparation": "Frullare tutto. Allungare con acqua della pasta o latte vegetale senza\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 60,
+    "name": "Risotto con Cavolo Rosso e Crema di Verdure",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-11-29-19-16-16-83_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "4",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "320/400g di riso carnaroli",
+      "1L di acqua (di cottura del cavolo cappuccio viola)",
+      "1/2 cavolo viola",
+      "150g di legumi già cotti (ceci o cannellini)",
+      "1 noce di burro vegetale per mantecaere",
+      "1 cucchiaini di zafferano o curcuma",
+      "1 cucchiaino di crema tahina + acqua"
+    ],
+    "preparation": "Non completamente leggibile dalle immagini.\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 61,
+    "name": "Paste di Meliga - Biscotti in Versione Vegana",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2024-11-30-14-20-01-39_40deb401b9ffe8e1df2f1cc5ba480b12~2.jpg",
+      "Screenshot_2024-11-30-14-20-07-38_40deb401b9ffe8e1df2f1cc5ba480b12.jpg",
+      "Screenshot_2024-11-30-14-20-21-45_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "15 minuti",
+    "temperature": "180 gradi",
+    "ingredients": [
+      "100 gr di farina di mais",
+      "100 gr di farina di riso",
+      "120 gr di zucchero di canna",
+      "100 ml di acqua",
+      "120 ml di olio di mais",
+      "buccia grattugiata di un limone (non trattato)",
+      "mezza bustina di cremor tartaro"
+    ],
+    "preparation": "",
+    "notes": "In tegame antiaderente fate tostare le mandorle in modo da poterne gustare in pieno l'aroma e, con l'aiuto di un robot potente da cucina dotato di lame, tritate la frutta secca fino a ottenere una polvere abbastanza fine (questo passaggio lo eviterete se utilizzate la farina di mandorle).\nAggiungetele quindi le mandorle e mescolate fino a ottenere un composto omogeneo.\nNegli stampi e poi in forno!\nCon l'aiuto di un cucchiaio dosate l'impasto all'interno degli stampini per le madeleine: ricordatevi di non riempire del tutto le forme perché il composto dovrà gonfiarsi per creare la tipica \"pancia\" di questi dolcetti.\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 62,
+    "name": "Tortiera da 26 cm con farina di ceci",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-01-21-17-39-05-61_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2025-01-21-17-39-13-33_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "1 tortiera",
+    "prep_time": "45 minuti",
+    "cook_time": "45 minuti",
+    "temperature": "180 gradi",
+    "ingredients": [
+      "400g farina 0 (o preparato per dolci senza glutine)",
+      "130g latte di soia (o altro latte vegetale)",
+      "150g zucchero di canna (potete diminuirlo, ma non sarà uguale a quella di Bormio)",
+      "90g olio di semi di girasole",
+      "10g lievito vanigliato per dolci",
+      "1 bel pizzico di sale (abbondate! Darà più sapore)",
+      "mezzo barattolo circa di marmellata ai mirtilli: io ne ho cercata una con i pezzetti di frutta, ve lo consiglio"
+    ],
+    "preparation": "Oliare ed infarinare una teglia da 24cm, versate il composito, livellatelo per bene e fate cuocere in forno statico a 180 gradi per 45 minuti, o fino a doratura.\n\nLa torta va cotta in forno statico a 180 gradi per 45 minuti, o fino a doratura. Spero tanto che vi piaccia! Noi siamo impazziti siamo felicissimi di poter finalmente riprodurre questo dolce in versione vegetale!\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 63,
+    "name": "Tofu croccante e gustoso - Diletta Secco",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-01-28-17-36-48-52_a23b203fd3aafc6dcb84e438dda678b6~2.jpg"
+    ],
+    "servings": "Ricetta per dieta secco",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "2 panetti di tofu",
+      "2 cucchiai di olio d'arachidi",
+      "2 cucchiai di salsa di soia",
+      "Spezie a piacere (io curry, curcuma, paprika affumicata, aglio in polvere, timo)",
+      "Mayonese allo yogurt",
+      "Cipolle rosse in padella",
+      "Rucola"
+    ],
+    "preparation": "Strizzare bene il tofu e grattarlo con la grattugia a fori larghi. Condirlo con olio e salsa di soia, le spezie e mettere su placca rivestita con carta da forno. 170* ventilato 20/25 min. Girare a metà cottura\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 64,
+    "name": "Gnocchi senza patate colorati - La dispensa vegana",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-02-06-19-44-45-66_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "[Testo parzialmente visibile] Procedimento non completamente leggibile nell'immagine\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 65,
+    "name": "Ciambella vegana con gocce di cioccolato",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-02-07-20-32-29-36_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "[Testo non completamente visibile nelle immagini fornite]\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 66,
+    "name": "Ciambella vegana - Continuazione ricetta",
+    "uncertain": true,
+    "uncertainty_reason": "Testo visibile solo parzialmente, secondo screenshot mostra solo istruzioni di cottura",
+    "sources": [
+      "Screenshot_2025-02-07-20-32-55-57_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "Oliate ed infarinate una teglia da ciambella da 24 cm, versate il composito, livellatelo per bene e fate cuocere in forno statico preriscaldato, a 170° per 50 minuti.\n\nFate raffreddare la vostra ciambella vegan, mettetela su un piatto da portata, spolverizzatela di zucchero a velo e servite.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 67,
+    "name": "Puntarelle al forno",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-02-16-10-40-42-78_40deb401b9ffe8e1df2f1cc5ba480b12.jpg",
+      "Screenshot_2025-02-16-10-40-58-62_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "400 g Puntarelle",
+      "3 cucchiai Salsa di soia",
+      "2 cucchiaini Zucchero",
+      "2 cucchiai Olio di semi di girasole",
+      "2 cucchiai Semi di sesamo",
+      "2-3 cucchiai Pangrattato",
+      "q.b. Aglio in polvere",
+      "q.b. Peperoncino in polvere",
+      "q.b. Sale"
+    ],
+    "preparation": "STEP 4: Stendete le puntarelle su una teglia rivestita con carta forno e infornate in modalità statica per 20-25 minuti a 200°C. Se volete dare ulteriore croccantezza, mettete la modalità ventilata per gli ultimi 5 minuti.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 68,
+    "name": "Torta senza farina e senza lievito - Ladispensavegana",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-03-23-19-54-23-46_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2025-03-23-19-56-14-12_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "per una tortiera dal diametro di 20cm",
+    "prep_time": "",
+    "cook_time": "50 minuti",
+    "temperature": "190 gradi",
+    "ingredients": [],
+    "preparation": "In una ciotola uniamo lo yogurt, l'estratto di vaniglia e l'amido di mais setacciato per bene. Mescoliamo, trasferiremo nello stampo foderat con carta forno e inforniamo in modalità statica a 190 gradi per 50 minuti. È cotta quando sarà colorata in superficie e si sarà solidificata. La lasciamo raffreddare nel forno aperto e spento, si compattera ancora di più.",
+    "notes": "La torta è veramente magica perché è senza farina, senza lievito e si prepara con solo 3 ingredienti! Per realizzarla mi sono ispirata alla cheesecake baska, ma la consistenza è più solida e soprattutto è di una facilità estrema.\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 69,
+    "name": "Gnocchi di lenticchie sfiziosissimi - Laricettaveg",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-03-23-19-56-28-56_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2025-03-23-19-54-23-46_1c337646f29875672b5a61192b9010f9.jpg",
+      "Screenshot_2025-03-23-19-56-14-12_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "per 2 persone",
+    "prep_time": "15 minuti",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "1. Frulla benissimo le lenticchie insieme all'olio, spingendole spesso tra le lame. Se serve aggiungere un cucchiaino di acqua alla volta, devi ottenere una purea cremosa e non troppo bagnata.\n\n2. In una ciotola aggiungi alla purea di lenticchie il sale e la semola rimaccinata poca per volta, impasta prima con la forchetta e poi con le mani. Appena il panetto è liscio, elastico, morbido ma non appiccicoso è pronto!\n\n3. Forma dei filoncini e taglia la pasta con la forbice, quindi tuffa gli gnocchetti nell'acqua bollente salata una manciata alla volta. Non toccarli, dovranno arrivare da soli a galleggiare.\n\n4. Saltali nel sugo e servi!",
+    "notes": "Se nel tuo piano alimentare hai pasta e lenticchie... sappi che puoi trasformarla in gnocchi sfiziosissimi. Sono molto facili da preparare e bastano 15 minuti... e una forza! Li proverai?\n\n---",
+    "category": "Primi"
+  },
+  {
+    "id": 70,
+    "name": "Pesto alla trapanese",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-05-18-17-09-04-28_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "4 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250 g Pomodorini",
+      "80 g Mandorle pelate",
+      "30 g Foglie di basilico",
+      "2 cucchiaio Grattuggiato vegetale",
+      "2 Spicchi di aglio",
+      "q.b. Olio evo",
+      "2 pizzico Sale",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Pane & Pizza"
+  },
+  {
+    "id": 71,
+    "name": "Torta zebrata",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-05-18-17-11-28-52_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250 g Farina 0",
+      "80 g Amido di mais",
+      "160 g Zucchero di carna",
+      "280 g Latte vegetale",
+      "150 g Olio di mais",
+      "1 bustina Lievito per dolci",
+      "1 pizzico Sale",
+      "30 g Cacao amaro",
+      "80 ml Latte vegetale",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 72,
+    "name": "Lasagne di zucchine veloci - Ladispensavegana e Dreamfarm Plantlovers",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-05-21-21-10-54-30_1c337646f29875672b5a61192b9010f9~2.jpg"
+    ],
+    "servings": "per una teglia da 20x30",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "[Testo parzialmente visibile]\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 73,
+    "name": "Terrina da 24 cm con melanzane, pomodori perini e mozzavelle",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-06-21-08-46-25-56_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 74,
+    "name": "Spaghetti cremosi di zucchine - Littleveganwitch",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-06-27-16-48-59-67_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "per 2-3 porzioni",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "Tagliamo le zucchine in fettine sottili e cospargiamo con olio, lievito alimentare in fiocchi, salsa di soia e fruliamo fino a ottenere una crema liscia. Se serve potete aggiungere un cubetto di ghiaccio e un poco di acqua. Uniamo la pasta al dente e amalgamiamo per una cremosità pazzesca\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 75,
+    "name": "Crepes vegane senza uova e senza latte",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-08-02-12-08-41-56.jpg"
+    ],
+    "servings": "4 pezzi",
+    "prep_time": "20 min",
+    "cook_time": "20 min",
+    "temperature": "",
+    "ingredients": [
+      "100 g farina 0",
+      "260 g acqua oppure latte vegetale",
+      "20 g di zucchero",
+      "2 pizzico sale",
+      "2 cucchiai di olio evo + qb per la padella"
+    ],
+    "preparation": "",
+    "notes": "- Quando ho indicato che \"bastano 3 ingredienti\" per preparare le crepes, non mi tenuto conto anche dell'olio che è importante poichè aiuta a far cuocere e cuoce bene.\n- Per guarnire ho utilizzato yogurt e marmellata, ma crema di cioccolato al pistacchio sono altre validissime alternative golose.\n- Le crepes si conservano in frigorifero per 3-4 giorni coperte di pellicola e non farcie.\n\n---",
+    "category": "Dolci"
+  },
+  {
+    "id": 76,
+    "name": "Tofu grigliato con verdure - Eatsgliulla",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-08-10-21-15-32-12_1c337646f29875672b5a61192b9010f9.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250g di tofu",
+      "4-5 cucchiai di farina circa (da aggiungere poca alla volta mentre si frulla, controllando la consistenza)",
+      "1 cipolla",
+      "1 zucchina",
+      "1 carota",
+      "Sale, olio",
+      "Salsa di soia",
+      "Semi di sesamo"
+    ],
+    "preparation": "Frullare il tofu insieme alla farina e ad un pizzico di sale fino ad ottenere un panetto. Stendere l'impasto creando un \"serpentino\" e tagliarlo a fettine, come si vede in video.\n\nOra tagliare tutte le verdure a strisciolinie sottili e cuocerle in padella con olio e sale, lasciandole abbastanza croccanti.\n\nOra cuocere gli gnocchi in acqua bollente salata, per un minuto dopo che saranno venuti a galla.\n\nAmalgamare gli gnocchi alle verdure, alla salsa di soia e ai semini di sesamo ed è pronto!\n\nBuonissimi e super ricchi di proteine! Provateliiiii\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 77,
+    "name": "Camille vegan - Torta alle carote e arancia",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-11-01-12-40-44-24.jpg"
+    ],
+    "servings": "8 pezzi",
+    "prep_time": "20 min",
+    "cook_time": "25 min",
+    "temperature": "180 gradi per circa 25 minuti",
+    "ingredients": [
+      "100 g carote pulite",
+      "65 g olio di semi di riso",
+      "90 g zucchero di carna",
+      "180 g bevanda vegetale per me di soia",
+      "75 g succo di arancia",
+      "la scorza grattugiata di 1 arancia",
+      "75 g mandorle",
+      "165 g di farina 00",
+      "10 g lievito per dolci",
+      "1 pizzico sale"
+    ],
+    "preparation": "1. Frulla la purea di carote a tocchetti insieme alle mandorle, al farina e al succo di arancia, fino ad ottenere un composto omogeneo.\n\n2. Versa il tutto in una ciotola capiente aggiungendo la bevanda vegetale mescolando con una frusta manuale. Unisci anche lo zucchero, la scorza grattugiata di arancia, la farina e il lievito per dolci. Mescola l'impasto con una frusta o con una padella con olio extra vergine di oliva circa due minuti per lato oppure in forno a 180° per 15 minuti.\n\n3. Le Camille hanno la caratteristica forma a mezza sfera, la cui parte interna si ritiene lo stesso risultato dei dumetti ai stampi a mezza sfera in silicone. Quelli che ho usato io hanno un diametro di 8 cm. Se non li hai usato io hanno un di diametro di 8 cm. Se non li hai usato io hanno un di diametro di 8 cm. Se non li hai usato io hanno un diametro di 8 cm, potrai dolerli allo stesso sapore delle Camille... sotto forma di muffin.\n\n4. Versa l'impasto negli stampi che hai scelto, non arriviare fin al bordo fermati a 3/4 dell'altezza. Inforna a forno caldo in modalità statica a 180 gradi per circa 25 minuti, vale sempre la regola dello stecchino.\n\n5. Opzionale: per completare, spolverare con zucchero a velo che secondo me ci sta bene, anche se nelle originali non è presente.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 78,
+    "name": "Marmellata di mele",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2025-12-22-16-37-42-98_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 79,
+    "name": "Cipolle Tropea con aceto di mele - Ricetta da vetrina di Tropea",
+    "uncertain": true,
+    "uncertainty_reason": "Screenshot mostra solo la sezione ingredienti e parte della ricetta non completa",
+    "sources": [
+      "Screenshot_2025-12-22-21-06-26-54_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "600 gr cipolle rosse di Tropea",
+      "100 ml aceto di mele",
+      "150 g zucchero semolato",
+      "150 g zucchero di carna",
+      "1 pizzico di sale aromi (a scelta, alloro o chiodi di garofano) q.b.",
+      "4 vasi Quattro Stagioni da 150 ml",
+      "4 tappi Quattro Stagioni di diametro 56 mm",
+      ""
+    ],
+    "preparation": "",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 80,
+    "name": "Uovo di ceci - Joysonfre",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250121-182139_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "100 g di latte di soia senza zucchero",
+      "50 g di farina di ceci",
+      "40 g di fecola di patate",
+      "Mezzo cucchiaino di zafferano o curcuma (per un bel colore giallo)",
+      "Sale Kala Namak q.b. (per il tipo sapore \"sulfureo\")",
+      "Facoltativo: 1 cucchiaino di Psyllium (per una consistenza più elastica e simile all'uovo)"
+    ],
+    "preparation": "1. In una ciotola (o una bottiglia), unite tutti gli ingredienti secchi: farina di ceci, fecola, zafferano (o curcuma), e se usate lo Psyllium. Mescolate bene.\n\n2. Aggiungete gradualmente il latte di soia, mescolando con una frusta per evitare grumi oppure sbatterete bene nel mio caso.\n\n3. Incorporate il sale Kala Namak a piacere e lasciate riposare il composto per 10-15 minuti. Questo passaggio permette alla farina di ceci di darsi diafatti bene e migliorare la consistenza finale.\n\nUsate questa miscela come sostituto dell'uovo in diverse preparazioni:\n\nPer frittate: Versate il composto in una padella antiaderente leggermente oliata e cuocete a fuoco medio per circa 5-7 minuti per lato.\n\nPer panature: Immergete gli ingredienti di impanare nella miscela prima di passarli nel pangrattato.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 81,
+    "name": "Schiacciate di patate veloci",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250121-182729_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "400 g di patate piccole",
+      "200 g di farina 00",
+      "3 CC olio evo qb",
+      "1 cc sale",
+      "rosmarino"
+    ],
+    "preparation": "Uniamo 320 g di acqua a temperatura ambiente con folio e il sale. Emulsionizziamo finché il sale si sarà sciolto e aggiungiamo la farina setacciata poco alla volta. A parte affettiamo le patate molto sottili, circa 1 millimetro, con una mandolina.\n\nIncorporiamo le patate alla pastella e stediamo tutto in una teglia fodera di carta di forno. Completiamo con il rosmarino e cuociamo in forno a 200 °C per 45-50 minuti, preferibilmente ventilato. Quando risulterà dorata, sforriamo e cuociamo nel forno aperto. Dividiam in tranchi e serviamo.\n\n---",
+    "notes": "",
+    "category": "Contorni"
+  },
+  {
+    "id": 82,
+    "name": "Frittata facile e veloce con tofu - Vegantofeelgood",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250221-222205_Instagram.jpg"
+    ],
+    "servings": "per 2-3 porzioni",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "180 g di tofu",
+      "100 g di latte vegetale al naturale (io soia)",
+      "Un pizzico di sale",
+      "20 g di fecola di patate",
+      "300 g di spinaci surgelati"
+    ],
+    "preparation": "Per prima cosa cuociamo gli spinaci e strizziamoli per bene. Mescolliamolo agli spinaci, aggiungiamo la fecola e mescoliamo ancora. Cuociamo le nostre frittattine in una padella ben calda, con un po' d'olio.\n\nA questo punto la nostra cena è pronta per essere gustata! E ti garantisco che questa ricetta è proprio un'salva pasto, per quando vai di fretta!\n\nFatemi sapere se la proverete!\n\n---",
+    "notes": "",
+    "category": "Secondi"
+  },
+  {
+    "id": 83,
+    "name": "Piadina con salsa yogurt - Vegarok",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250221-222303_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "Bastera tagliarlo a fettine sottili con una mandolina o una pela verdure. Poi saltiaamo in padella con olio e tutte le spezie fino ad ottenere un composto cremoso. Componiamo il kebab con la piadina, insalata, pomodoro, cipolla e il il seitan. Chiaramente questo mi ricorda proprio quello del kebabbaro. Pazzeesco e pazzesco.\n\n---",
+    "notes": "",
+    "category": "Pane & Pizza"
+  },
+  {
+    "id": 84,
+    "name": "Tagliatelle al limone - Mrs.veggy",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250317-225527_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 85,
+    "name": "Pan di Spagna vegan senza spezie",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250323-001529_Chrome.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "175 g farina 0",
+      "60 g amido di mais",
+      "1 bustina di lievito in polvere per dolci",
+      "1 pizzico di sale",
+      "150 g di zucchero di carna chiaro",
+      "Buccia grattugiata di 1 limone",
+      "100 ml di olio di riso (o di semi di girasole)",
+      "200 ml di latte di soia",
+      "100 g di gocce di cioccolato fondente",
+      "q.b. di zucchero a velo"
+    ],
+    "preparation": "Si cucina! Prepariamo l'impasto. In una ciotola capiente mescolate lo zucchero di carna grezzo con l'olio di semi di girasole. Setacciate poi la farina, l'amido di mais e il lievito direttamente sul composito di olio e zucchero, unite il sale e i semi del baccello di vaniglia e mescolate bene. Aggiungete anche il latte di soia e mescolate fino ad ottenere un composito omogeneo.\n\nInforniamo il pan di Spagna. Foderate una tortiera con carta da forno, versate l'impasto e infornate in forno statico a 180°C per 25-30 minuti. Per assicurarsi che sia cotto infiziate il pan di Spagna con uno stuzzicadenti: dovrà uscire asciutto e senza residui d'impasto attaccato. Sfornate e lasciate raffreddare completamente prima di procedere ad eventuale taglio e farcitura del pan di Spagna senza uova.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 86,
+    "name": "Crepes vegane - Continuazione cottura",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250323-001600_Chrome.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 87,
+    "name": "Spaghetti Verdi freschi e cremosi",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250618-234126_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "Salva il video se vuoi due spaghetti veloci, profumati e con un bel carattere.\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 88,
+    "name": "Linguine con crema di melanzane arrostita - Littleveganwitch",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20250618-234249_Instagram.jpg"
+    ],
+    "servings": "per 2 persone",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [],
+    "preparation": "Cuoci la melanzana a 200° per 30-40 minuti in forno o friggitrice ad aria finché è morbida. Salva per quando vuoi un'salsa veloce, ma con quel colpetto in più.\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 89,
+    "name": "Pasta \"tutto in una padella",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_2026-03-04-13-48-06-27.jpg"
+    ],
+    "servings": "Non specificato",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "180 g di spaghetti",
+      "500 g di bevanda di soia",
+      "300 ml di acqua vegetale",
+      "160 g di pomodori secchi",
+      "2 cucchiaini di concentrato di pomodoro",
+      "2 cipollotti",
+      "2 cucchiaini concentrato di pomodori secchi a filetti",
+      "pepe (facoltativo)"
+    ],
+    "preparation": "Inizia preparando gli ingredienti affetta il bulbo del cipollottini, aggiungi gli spezzatini e fai soffrire in padella con olio, e lo stesso pepe. Aggiungi i pomodori secchi e li pomodori pepe; il pepe zenoano liquida finché è ragione.\n\nOppure il fuoco è minimo e sfiolvi delicatamente la pasta direttamente in padella. Mescola breve e servi!\n\n---",
+    "notes": "",
+    "category": "Primi"
+  },
+  {
+    "id": 90,
+    "name": "Torta di Tofu - Giuliapisco",
+    "uncertain": false,
+    "uncertainty_reason": "",
+    "sources": [
+      "Screenshot_20260201-003903_Instagram.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "200 g tofu",
+      "150g zucchero",
+      "90 ml olio di semi",
+      "250ml latte vegetale",
+      "Scorza grattugiata di 1 limone bio",
+      "Succo di un limone",
+      "1 cucchiaino estratto di vaniglia",
+      "200g farina 00",
+      "50g fecola di patate",
+      "1 bustina lievito per dolci",
+      "1 pizzico di sale"
+    ],
+    "preparation": "Frulla tofu, latte, olio fino a ottenere una crema bianchisSima e liscia. Incorpora il composito a farina, zucchero, fecola, lievito e sale setacciati. Aggiungi vaniglia, succo e scorza di limone. Versa in uno stampo da 22 cm oliato. Cuoci a 170°C per 50 minuti (prova stecchino). Cuoci a forma, padella e friggirice ad aria finché è morbida. Salva per quando vuoi un'salsa yogurt e mi sono allo dello dei selfuttan per chiudiero. Opzionalmente, per completare, spolverare con zucchero a velo che secondo me ci sta bene, anche se nelle originali non è presente.\n\n---",
+    "notes": "",
+    "category": "Dolci"
+  },
+  {
+    "id": 91,
+    "name": "Crema di spalmabile vegan - Ricetta da screenshot incompleto",
+    "uncertain": true,
+    "uncertainty_reason": "Lo screenshot mostra solo una parte degli ingredienti, il resto è tagliato",
+    "sources": [
+      "original_853ac6a9-9e05-41ae-b486-45a78cee02e1_Screenshot_2025-09-13-10-52-12-35_40deb401b9ffe8e1df2f1cc5ba480b12.jpg"
+    ],
+    "servings": "",
+    "prep_time": "",
+    "cook_time": "",
+    "temperature": "",
+    "ingredients": [
+      "250 g di spalmabile alla soia",
+      "240 g di yogurt di soia (neutro o alla vaniglia)",
+      "50 g di zucchero a velo",
+      "80 g di \"latte\" vegetale (oppure acqua)",
+      "4,5 g di agar agar",
+      "180 g di \"Idee di Soia da Montare\" Hoplà"
+    ],
+    "preparation": "",
+    "notes": "Ricetta estratta da screenshot incompleto. La parte del procedimento non è visibile.",
+    "category": "Primi"
+  }
+];
+
+const catClass = {
+  'Primi': 'cat-primi',
+  'Secondi': 'cat-secondi',
+  'Contorni': 'cat-contorni',
+  'Dolci': 'cat-dolci',
+  'Pane & Pizza': 'cat-pane',
+  'Salse & Condimenti': 'cat-salse',
+  'Colazione': 'cat-colazione'
+};
+
+let activeCategory = 'Tutte';
+let searchQuery = '';
+let debounceTimer = null;
+
+const grid = document.getElementById('grid');
+const empty = document.getElementById('empty');
+const countBadge = document.getElementById('count-badge');
+const searchInput = document.getElementById('search');
+const clearBtn = document.getElementById('clear-btn');
+const overlay = document.getElementById('overlay');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const modalBody = document.getElementById('modal-body');
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlight(text, query) {
+  if (!query || query.length < 2) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return escaped.replace(re, '<mark class="highlight">$1</mark>');
+}
+
+function renderCards() {
+  const q = searchQuery.toLowerCase();
+  const filtered = recipes.filter(r => {
+    const matchCat = activeCategory === 'Tutte' || r.category === activeCategory;
+    if (!matchCat) return false;
+    if (!q) return true;
+    return r.name.toLowerCase().includes(q) ||
+           r.ingredients.some(i => i.toLowerCase().includes(q)) ||
+           r.preparation.toLowerCase().includes(q);
+  });
+
+  countBadge.textContent = filtered.length === recipes.length
+    ? `${recipes.length} ricette`
+    : `${filtered.length} di ${recipes.length}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.add('visible');
+    return;
+  }
+  empty.classList.remove('visible');
+
+  grid.innerHTML = filtered.map(r => {
+    const ings = r.ingredients.slice(0, 3).map(i => highlight(i, q)).join(', ');
+    const moreIngs = r.ingredients.length > 3 ? ` <em>+${r.ingredients.length - 3} altri</em>` : '';
+    const infoItems = [
+      r.prep_time ? `⏱ ${escapeHtml(r.prep_time)}` : '',
+      r.cook_time ? `🍳 ${escapeHtml(r.cook_time)}` : '',
+      r.servings ? `👥 ${escapeHtml(r.servings)}` : '',
+    ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
+
+    return `<article class="card" onclick="openRecipe(${r.id})" role="button" tabindex="0" aria-label="${escapeHtml(r.name)}">
+  <div class="card-body">
+    <div class="card-name">${highlight(r.name, q)}</div>
+    <div class="card-meta">
+      <span class="cat-pill ${catClass[r.category] || 'cat-contorni'}">${escapeHtml(r.category)}</span>
+      ${r.uncertain ? '<span class="badge-uncertain">⚠️ incompleta</span>' : ''}
+    </div>
+    ${infoItems ? `<div class="card-info">${infoItems}</div>` : ''}
+    ${ings ? `<div class="card-ingredients">${ings}${moreIngs}</div>` : ''}
+  </div>
+</article>`;
+  }).join('');
+}
+
+function openRecipe(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  modalTitle.textContent = r.name;
+
+  const metaItems = [
+    r.prep_time ? `⏱ ${escapeHtml(r.prep_time)}` : '',
+    r.cook_time ? `🍳 ${escapeHtml(r.cook_time)}` : '',
+    r.servings ? `👥 ${escapeHtml(r.servings)}` : '',
+    r.temperature ? `🌡 ${escapeHtml(r.temperature)}` : '',
+  ].filter(Boolean).map(s => `<div class="meta-item">${s}</div>`).join('');
+
+  const ingsList = r.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+
+  modalBody.innerHTML = `
+    ${r.uncertain ? `<div class="uncertain-banner">⚠️ Ricetta potenzialmente incompleta: ${escapeHtml(r.uncertainty_reason || 'testo non completamente leggibile')}</div>` : ''}
+    ${metaItems ? `<div class="modal-meta">${metaItems}</div>` : ''}
+    ${ingsList ? `<p class="modal-section-title">Ingredienti</p><ul class="ingredients-list">${ingsList}</ul>` : ''}
+    ${r.preparation ? `<p class="modal-section-title">Preparazione</p><div class="preparation-text">${escapeHtml(r.preparation)}</div>` : ''}
+    ${r.notes ? `<p class="modal-section-title">Note</p><div class="notes-box">${escapeHtml(r.notes)}</div>` : ''}
+  `;
+
+  overlay.classList.add('open');
+  setTimeout(() => modal.classList.add('open'), 10);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  modal.classList.remove('open');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+overlay.addEventListener('click', closeModal);
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Touch swipe down to close
+let touchStartY = 0;
+modal.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+modal.addEventListener('touchend', e => {
+  if (e.changedTouches[0].clientY - touchStartY > 80) closeModal();
+}, {passive: true});
+
+// Search
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    searchQuery = searchInput.value.trim();
+    clearBtn.classList.toggle('visible', searchQuery.length > 0);
+    renderCards();
+  }, 150);
+});
+
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  clearBtn.classList.remove('visible');
+  renderCards();
+  searchInput.focus();
+});
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelector('.filter-btn.active').classList.remove('active');
+    btn.classList.add('active');
+    activeCategory = btn.dataset.cat;
+    renderCards();
+  });
+});
+
+// Keyboard nav on cards
+grid.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    const card = e.target.closest('.card');
+    if (card) card.click();
+  }
+});
+
+// Init
+renderCards();
+</script>
+</body>
+</html>
